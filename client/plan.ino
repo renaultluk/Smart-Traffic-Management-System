@@ -14,8 +14,8 @@ Node dequeue(Node queue[], int &queue_size) {
     return tmp;
 }
 
-Node outgoing(Node node, Edge edge) {
-    return edge.start == &node ? *edge.end : *edge.start;
+Node* outgoing(Node* node, Edge edge) {
+    return edge.start == node ? edge.end : edge.start;
 }
 
 void solve(Node start) {
@@ -26,23 +26,21 @@ void solve(Node start) {
     start.distance = 0;
 
     while (queue_size > 0) {
-        Node tmpNode = dequeue(queue, queue_size);
-        Node &current = tmpNode;
-        current.visited = true;
+        Node* current = &dequeue(queue, queue_size);
+        (*current).visited = true;
 
         for (int i = 0; i < 3; i++) {
-            Edge edge = current.edges[i];
-            Node tmpNode2 = outgoing(current, edge);
-            Node &nextNode = tmpNode2;
+            Edge edge = (*current).edges[i];
+            Node* nextNode = outgoing(current, edge);
 
-            int tmpDistance = current.distance + edge.weight;
-            if (tmpDistance < nextNode.distance) {
-                nextNode.distance = tmpDistance;
-                nextNode.prev = &current;
+            int tmpDistance = (*current).distance + edge.weight;
+            if (tmpDistance < (*nextNode).distance) {
+                (*nextNode).distance = tmpDistance;
+                (*nextNode).prev = current;
             }
 
-            if (!nextNode.visited) {
-                enqueue(queue, nextNode, queue_size);
+            if (!(*nextNode).visited) {
+                enqueue(queue, (*nextNode), queue_size);
             }
         }
     } 
