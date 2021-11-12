@@ -28,5 +28,5 @@ When the vehicle passes a node, the following operation will be carried out:
 
 ---
 ### Project Contributors
-Renault Luk
-Kelly Lai
+- Renault Luk
+- Kelly Lai
