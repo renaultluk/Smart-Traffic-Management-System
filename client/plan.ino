@@ -26,11 +26,14 @@ void solve(Node start) {
     start.distance = 0;
 
     while (queue_size > 0) {
-        Node current = dequeue(queue, queue_size);
+        Node tmpNode = dequeue(queue, queue_size);
+        Node &current = tmpNode;
+        current.visited = true;
 
         for (int i = 0; i < 3; i++) {
             Edge edge = current.edges[i];
-            Node nextNode = outgoing(current, edge);
+            Node tmpNode2 = outgoing(current, edge);
+            Node &nextNode = tmpNode2;
 
             int tmpDistance = current.distance + edge.weight;
             if (tmpDistance < nextNode.distance) {
