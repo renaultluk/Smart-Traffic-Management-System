@@ -36,7 +36,9 @@ void serialInputHandler() {
             break;
     
         case 't':
-            destMode = destMode == AUTO ? MANUAL : AUTO;
+            if (Serial.parseInt() == VEHICLE_ID) {
+                destMode = destMode == AUTO ? MANUAL : AUTO;
+            }
             break;
         
         default:

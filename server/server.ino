@@ -1,6 +1,8 @@
 #include "../graphStructs.h"
 #include "credentials.h"
 
+enum { MANUAL, AUTO } destMode;
+
 void serialInputHandler() {
     char command = Serial.read();
     switch (command) {
@@ -11,6 +13,7 @@ void serialInputHandler() {
             break;
     
         case 't':
+            int vehicleId = Serial.parseInt();
             destMode = destMode == AUTO ? MANUAL : AUTO;
             break;
         
