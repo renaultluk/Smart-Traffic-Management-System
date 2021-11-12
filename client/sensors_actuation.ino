@@ -2,10 +2,13 @@
 #define NUM_SENSORS       7
 #define INT_UPPER       128
 
-#define M1IN1             9
+#define M1IN1             2
 #define M1IN2            10
 #define M2IN1            11
 #define M2IN2            12
+
+#define ULT_SEN           9
+#define ULT_SEN_THRESHOLD 5
 
 const float Kp = 0.1;
 const float Ki = 0;
@@ -37,7 +40,8 @@ void brake() {
 }
 
 bool ultRead() {
-
+    float ultReading = analogRead(ULT_SEN);
+    return (ultReading <= ULT_SEN_THRESHOLD);
 }
 
 bool linePosition() {
