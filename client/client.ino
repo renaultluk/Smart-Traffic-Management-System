@@ -24,6 +24,7 @@ Node start;
 Node target;
 Node path[NUM_NODES];
 char direction_queue[NUM_NODES];
+int direction_index = 0;
 
 void serialInputHandler() {
     char command = Serial.read();
@@ -57,7 +58,7 @@ State followFunc() {
         }
         cur_time = micros();
         if ((cur_time - prev_time)/1.0e6 > 1.0/CONTROL_FREQ) {
-            if (!linePosition) {
+            if (!linePosition(direction_queue[direction_index], direction_index)) {
                 return STATE_ARRIVED;
             }
             prev_time = cur_time;

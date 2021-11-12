@@ -59,7 +59,7 @@ void readIR(bool &line_detected, bool &line_started, bool &line_ended, int i) {
     }
 }
 
-bool linePosition(char direction) {
+bool linePosition(char direction, int &direction_index) {
     bool line_detected = false;   
     bool line_started = false;
     bool line_ended = false;
@@ -73,6 +73,9 @@ bool linePosition(char direction) {
             readIR(line_detected, line_started, line_ended, i);
         }
     }
+
+    //TODO: check if the node is passed and update the direction_index
+
     P_error = Kp * error;
     
     integral += error;

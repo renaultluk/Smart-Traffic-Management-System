@@ -10,4 +10,4 @@ void brake();
 
 bool ultRead();
 
-bool linePosition();
+bool linePosition(char direction, int &direction_index);
