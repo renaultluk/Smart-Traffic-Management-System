@@ -1,6 +1,6 @@
 #include "graphStructs.h"
 
-Node newNode() {
+Node newBlankNode() {
     Node node;
     node.index = __INT_MAX__;
     node.x = __INT_MAX__;

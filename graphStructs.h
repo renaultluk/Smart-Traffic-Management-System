@@ -19,7 +19,7 @@ struct Edge {
     double weight;
 };
 
-Node newNode();
+Node newBlankNode();
 
 Node newNode(int index, double x, double y);
 
