@@ -19,4 +19,8 @@ struct Edge {
     double weight;
 };
 
+Node newNode();
+
+Node newNode(int index, double x, double y);
+
 const Node node_map = {};
