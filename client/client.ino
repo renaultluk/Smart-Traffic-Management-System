@@ -4,6 +4,8 @@
 
 #define CONTROL_FREQ    20
 
+#define VEHICLE_ID      1
+
 typedef enum {
     STATE_INIT,
     STATE_CONNECTING,
@@ -22,6 +24,23 @@ Node start;
 Node target;
 Node path[NUM_NODES];
 
+void serialInputHandler() {
+    char command = Serial.read();
+    switch (command) {
+        case 'd':
+            if (Serial.parseInt() == VEHICLE_ID) {
+                target.index = Serial.parseInt();
+            }
+            break;
+    
+        case 't':
+            destMode = destMode == AUTO ? MANUAL : AUTO;
+            break;
+        
+        default:
+            break;
+    }
+}
 
 State planFunc() {
     planPath(start, target, path);
@@ -60,7 +79,8 @@ State arrivedFunc() {
         while (!Serial.available()) {
             delay(100);
         };
-        String input = Serial.readStringUntil('\n');
+        serialInputHandler();
+        return STATE_PLANNING;
         break;
     
     case AUTO:
@@ -79,6 +99,10 @@ void loop() {
     State vehicleState = STATE_PLANNING;
 
     while (true) {
+        if (Serial.available()) {
+            serialInputHandler();
+        }
+
         switch (vehicleState)
         {
         case STATE_PLANNING:
