@@ -4,7 +4,7 @@
 
 #define CONTROL_FREQ    20
 
-#define VEHICLE_ID      1
+#define VEHICLE_ID       1
 
 typedef enum {
     STATE_INIT,
@@ -20,11 +20,12 @@ typedef enum {
 
 enum { MANUAL, AUTO } destMode;
 
-Node start;
-Node target;
+Node* start;
+Node* target;
 Node path[NUM_NODES];
 char direction_queue[NUM_NODES];
 int direction_index = 0;
+Node* destinations[NUM_NODES];
 
 void serialInputHandler() {
     char command = Serial.read();
@@ -47,7 +48,7 @@ void serialInputHandler() {
 }
 
 State planFunc() {
-    planPath(start, target, path, direction_queue);
+    planPath(*start, *target, path, direction_queue);
     return STATE_FOLLOWING;
 }
 
@@ -88,6 +89,7 @@ State arrivedFunc() {
         break;
     
     case AUTO:
+        target = destinations[random(NUM_DEST)];
         break;
 
     default:
@@ -96,11 +98,11 @@ State arrivedFunc() {
 }
 
 void setup() {
-
+    randomSeed(analogRead(0));
 }
 
 void loop() {
-    State vehicleState = STATE_PLANNING;
+    State vehicleState = arrivedFunc();
 
     while (true) {
         if (Serial.available()) {

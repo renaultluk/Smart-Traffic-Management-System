@@ -1,5 +1,6 @@
 const int NUM_NODES = 0;
 const int NUM_EDGES = 0;
+const int NUM_DEST = 0;
 
 struct Edge;
 
@@ -27,5 +28,6 @@ Node newNode(int index, double x, double y);
 
 Edge connectEdge(Node node1, Node node2);
 
-const Node node_map = {};
-const Edge edge_map = {};
+const Node node_map[] = {};
+const Node* destinations[] = {};
+const Edge edge_map[] = {};
