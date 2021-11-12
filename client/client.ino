@@ -23,6 +23,7 @@ enum { MANUAL, AUTO } destMode;
 Node start;
 Node target;
 Node path[NUM_NODES];
+char direction_queue[NUM_NODES];
 
 void serialInputHandler() {
     char command = Serial.read();
@@ -43,7 +44,7 @@ void serialInputHandler() {
 }
 
 State planFunc() {
-    planPath(start, target, path);
+    planPath(start, target, path, direction_queue);
     return STATE_FOLLOWING;
 }
 
