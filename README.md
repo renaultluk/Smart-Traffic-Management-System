@@ -12,7 +12,7 @@ Three “smart lamp posts” will be placed around the map, so that vehicles can
 ---
 ### Operation Flow
 ##### 1. Pre-journey planning
-The vehicle will plan out its journey before it starts driving. It first searches paths possible using breadth-first search (BFS), by tracing each path along the nodes, and adding up the weights of the edges. It ultimately selects the one with the least weights, and saves the steering directions in a queue.
+The vehicle will plan out its journey before it starts driving. It first searches paths possible using Dijkstra’s Algorithm, by tracing each path along the nodes, and returning the shortest distance from the initial node to all of the other nodes. It ultimately reconstructs the path  through tracing the target's immediate predecessor, and the immediate predecessor of that, and so on; and saves the steering directions in a queue.
 
 After it finishes planning, its path will be appended on a list on the server through MQTT, where additional weights will be added onto each edge that the vehicle will pass through, to deter other vehicles from occupying the same road.
 
