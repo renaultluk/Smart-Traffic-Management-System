@@ -44,23 +44,33 @@ bool ultRead() {
     return (ultReading <= ULT_SEN_THRESHOLD);
 }
 
-bool linePosition() {
-    bool lineDetected = false;   
+void readIR(bool &line_detected, bool &line_started, bool &line_ended, int i) {
+    float IR_reading = analogRead(i);
+    if (IR_reading > LINE_THRESHOLD) {
+        line_detected = true;
+        if (!line_ended) {
+            line_started = true;
+            error = error + i - NUM_SENSORS/2;
+        } else {
+            if (line_started) {
+                line_ended = true;
+            }
+        }
+    }
+}
+
+bool linePosition(char direction) {
+    bool line_detected = false;   
     bool line_started = false;
     bool line_ended = false;
 
-    for (int i = 2; i < NUM_SENSORS+2; i++) {
-        float IR_reading = analogRead(i);
-        if (IR_reading > LINE_THRESHOLD) {
-            lineDetected = true;
-            if (!line_ended) {
-                line_started = true;
-                error = error + i - NUM_SENSORS/2;
-            } else {
-                if (line_started) {
-                    line_ended = true;
-                }
-            }
+    if (direction == 'l') {
+        for (int i = 2; i < NUM_SENSORS+2; i++) {
+            readIR(line_detected, line_started, line_ended, i);
+        }
+    } else if (direction == 'r') {
+        for (int i = NUM_SENSORS+1; i >= 2; i--) {
+            readIR(line_detected, line_started, line_ended, i);
         }
     }
     P_error = Kp * error;
@@ -77,5 +87,5 @@ bool linePosition() {
     motorDrive(cruising_speed + out, M1IN1, M1IN2);
     motorDrive(cruising_speed - out, M2IN1, M2IN2);
     
-    return lineDetected;
+    return line_detected;
 }
