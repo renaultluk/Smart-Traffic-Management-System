@@ -1,8 +1,28 @@
-# Smart-Traffic-Management-System
+# Smart Traffic Management System
 
 ### Introduction
 We are planning to use UWB radio network as well as MQTT to create communication between vehicles to prevent traffic jams and traffic accidents.
 
+---
+### TODOs
+- Implement UWB radio network and check if the vehicle has passed the node through getting its coordinates on the map.
+- Implement MQTT communication between the vehicle and the server.
+- Implement server code to add weight to the edge map and send commands to vehicles.
+---
+### Usage
+1. Start the server.
+2. Initialize each of the vehicles by typing in the following syntax:
+'''
+i <VEHICLE_ID> <STARTING_NODE_INDEX>
+'''
+3. The vehicles are set by default to receive destinations instructions manually. To enter the destination manually, type in the following syntax:
+'''
+d <VEHICLE_ID> <DESTINATION_NODE_INDEX>
+'''
+4. To toggle whether the vehicles receive destinations manually or generate new destinations automatically, type in the following syntax:
+'''
+t <VEHICLE_ID>
+'''
 ---
 ### Setup
 The map can be seen as a weighted graph, where points of significance (e.g. intersections, destinations) are the nodes, while the roads are the edges. The edges are weighted by their physical lengths and distance between the nodes. Additional weight will be added to the edges if a vehicle plans to pass through it.
