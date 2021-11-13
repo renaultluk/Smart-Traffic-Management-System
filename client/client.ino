@@ -47,6 +47,16 @@ void serialInputHandler() {
     }
 }
 
+void reset() {
+    start = target;
+    target = nullptr;
+    for (int i = 0; i < NUM_NODES; i++) {
+        path[i] = Node();
+        direction_queue[i] = '\0';
+        destinations[i] = nullptr;
+    }
+}
+
 State planFunc() {
     planPath(*start, *target, path, direction_queue);
     return STATE_FOLLOWING;
@@ -77,6 +87,7 @@ State brakeFunc() {
 }
 
 State arrivedFunc() {
+    reset();
     switch (destMode)
     {
     case MANUAL:
