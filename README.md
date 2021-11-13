@@ -5,6 +5,7 @@ We are planning to use UWB radio network as well as MQTT to create communication
 
 ---
 ### TODOs
+- Implement map_loader to load map into the server
 - Implement UWB radio network and check if the vehicle has passed the node through getting its coordinates on the map.
 - Implement MQTT communication between the vehicle and the server.
 - Implement server code to add weight to the edge map and send commands to vehicles.
