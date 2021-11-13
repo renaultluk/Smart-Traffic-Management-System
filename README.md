@@ -11,15 +11,15 @@ We are planning to use UWB radio network as well as MQTT to create communication
 ---
 ### Usage
 1. Start the server.
-2. Initialize each of the vehicles by typing in the following syntax:
+2. Initialize each of the vehicles by typing in the following syntax in the server serial monitor:
 ```
 i <VEHICLE_ID> <STARTING_NODE_INDEX>
 ```
-3. The vehicles are set by default to receive destinations instructions manually. To enter the destination manually, type in the following syntax:
+3. The vehicles are set by default to receive destinations instructions manually. To enter the destination manually, type in the following syntax in the server serial monitor:
 ```
 d <VEHICLE_ID> <DESTINATION_NODE_INDEX>
 ```
-4. To toggle whether the vehicles receive destinations manually or generate new destinations automatically, type in the following syntax:
+4. To toggle whether the vehicles receive destinations manually or generate new destinations automatically, type in the following syntax in the server serial monitor:
 ```
 t <VEHICLE_ID>
 ```
