@@ -112,7 +112,9 @@ State arrivedFunc() {
 }
 
 void setup() {
-    randomSeed(analogRead(0));
+    Serial.begin(115200);
+    setup_wifi();
+    initUWB();
 }
 
 void loop() {
