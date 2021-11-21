@@ -1,14 +1,21 @@
+#include <SPI.h>
+#include "DW1000Ranging.h"
+
 #define LINE_THRESHOLD   50
-#define NUM_SENSORS       7
+#define NUM_SENSORS       8
 #define INT_UPPER       128
 
-#define M1IN1             2
+#define M1IN1             8
 #define M1IN2            10
 #define M2IN1            11
 #define M2IN2            12
 
 #define ULT_SEN           9
 #define ULT_SEN_THRESHOLD 5
+
+#define PIN_RST           7
+#define PIN_SS            4
+#define PIN_IRQ           2
 
 const float Kp = 0.1;
 const float Ki = 0;
@@ -59,7 +66,7 @@ void readIR(bool &line_detected, bool &line_started, bool &line_ended, int i) {
     }
 }
 
-bool linePosition(char direction, int &direction_index) {
+bool linePosition(char direction) {
     bool line_detected = false;   
     bool line_started = false;
     bool line_ended = false;
@@ -91,4 +98,35 @@ bool linePosition(char direction, int &direction_index) {
     motorDrive(cruising_speed - out, M2IN1, M2IN2);
     
     return line_detected;
+}
+
+void initUWB() {
+    DW1000Ranging.initCommunication(PIN_RST, PIN_SS, PIN_IRQ);
+    DW1000Ranging.attachNewRange(newRange);
+    DW1000Ranging.attachNewDevice(newDevice);
+    DW1000Ranging.attachInactiveDevice(inactiveDevice);
+
+    DW1000Ranging.startAsTag();
+}
+
+void newRange() {
+
+}
+
+void newDevice(DW1000Device *device) {
+
+}
+
+void inactiveDevice(DW1000Device *device) {
+
+}
+
+void trilateration(DW1000Device *device, float coords[]) {
+
+}
+
+float nodeDistance(DW1000Device *device) {
+    float coords[2];
+    trilateration(device, coords);
+    return sqrt(pow(coords[0], 2) + pow(coords[1], 2));
 }

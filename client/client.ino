@@ -71,6 +71,9 @@ State followFunc() {
         }
         cur_time = micros();
         if ((cur_time - prev_time)/1.0e6 > 1.0/CONTROL_FREQ) {
+            if (nodeDistance() < 0.5) {
+                direction_index++;
+            }
             if (!linePosition(direction_queue[direction_index], direction_index)) {
                 return STATE_ARRIVED;
             }

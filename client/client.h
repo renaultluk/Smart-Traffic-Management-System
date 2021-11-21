@@ -10,4 +10,8 @@ void brake();
 
 bool ultRead();
 
-bool linePosition(char direction, int &direction_index);
+bool linePosition(char direction);
+
+void initUWB();
+
+float nodeDistance();
