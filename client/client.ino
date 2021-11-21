@@ -6,6 +6,8 @@
 
 #define VEHICLE_ID       1
 
+#define NODE_BOUNDS      10
+
 typedef enum {
     STATE_INIT,
     STATE_CONNECTING,
@@ -72,7 +74,7 @@ State followFunc() {
         }
         cur_time = micros();
         if ((cur_time - prev_time)/1.0e6 > 1.0/CONTROL_FREQ) {
-            if (nodeDistance() < 0.5) {
+            if (nodeDistance() < NODE_BOUNDS) {
                 direction_index++;
                 path_index++;
             }

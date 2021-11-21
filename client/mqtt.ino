@@ -38,6 +38,11 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.println();
 }
 
+void publishMap() {
+    string mapString = ",";
+    client.publish("/map", "map");
+}
+
 void reconnect() 
 {
   // Loop until we're reconnected

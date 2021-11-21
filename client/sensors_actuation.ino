@@ -128,5 +128,5 @@ void trilateration(DW1000Device *device, float coords[]) {
 float nodeDistance(DW1000Device *device) {
     float coords[2];
     trilateration(device, coords);
-    return sqrt(pow(coords[0], 2) + pow(coords[1], 2));
+    return sqrt(pow(coords[0], 2) + pow(coords[1], 2)) * 100;
 }
