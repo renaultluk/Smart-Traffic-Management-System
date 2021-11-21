@@ -24,6 +24,7 @@ Node* start;
 Node* target;
 Node path[NUM_NODES];
 char direction_queue[NUM_NODES];
+int path_index = 0;
 int direction_index = 0;
 Node* destinations[NUM_NODES];
 
@@ -73,8 +74,9 @@ State followFunc() {
         if ((cur_time - prev_time)/1.0e6 > 1.0/CONTROL_FREQ) {
             if (nodeDistance() < 0.5) {
                 direction_index++;
+                path_index++;
             }
-            if (!linePosition(direction_queue[direction_index], direction_index)) {
+            if (!linePosition(direction_queue[direction_index])) {
                 return STATE_ARRIVED;
             }
             prev_time = cur_time;
