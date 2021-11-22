@@ -17,6 +17,13 @@
 #define PIN_SS            4
 #define PIN_IRQ           2
 
+const float x1 = 0.0;
+const float y1 = 0.0;
+const float x2 = 0.0;
+const float y2 = 0.0;
+const float x3 = 0.0;
+const float y3 = 0.0;
+
 const float Kp = 0.1;
 const float Ki = 0;
 const float Kd = 0;
@@ -122,11 +129,24 @@ void inactiveDevice(DW1000Device *device) {
 }
 
 void trilateration(DW1000Device *device, float coords[]) {
+    float r1;
+    float r2;
+    float r3;
+    
+    float A = -2*x1 + 2*x2;
+    float B = -2*y1 + 2*y2;
+    float C = pow(r1,2) - pow(r2,2) - pow(x1,2) + pow(x2,2) - pow(y1,2) + pow(y2,2);
+    float D = -2*x2 + 2*x3;
+    float E = -2*y2 + 2*y3;
+    float F = pow(r2,2) - pow(r3,2) - pow(x2,2) + pow(x3,2) - pow(y2,2) + pow(y3,2);
 
+    coords[0] = (C*E - F*B)/(E*A - B*D);
+    coords[1] = (C*D - A*F)/(B*D - A*E);
 }
 
-float nodeDistance(DW1000Device *device) {
+float nodeDistance(DW1000Device *device, Node* node) {
     float coords[2];
     trilateration(device, coords);
-    return sqrt(pow(coords[0], 2) + pow(coords[1], 2)) * 100;
+    return sqrt(pow(coords[0] - node->x, 2) + pow(coords[1] - node->y, 2));
+
 }
