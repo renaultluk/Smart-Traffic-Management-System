@@ -12,6 +12,8 @@
 
 #define ULT_SEN           9
 #define ULT_SEN_THRESHOLD 5
+#define    VELOCITY_TEMP(temp)       ( ( 331.5 + 0.6 * (float)( temp ) ) * 100 / 1000000.0 )
+
 
 #define PIN_RST           7
 #define PIN_SS            4
@@ -38,6 +40,10 @@ float integral = 0;
 
 float cruising_speed = 100;
 
+float distance;
+uint32_t pulseWidthUs;
+int16_t  dist, temp;
+
 void motorDrive(int power, int in1, int in2) {
   if (power >= 0) {
     analogWrite(in2, 0);
@@ -54,8 +60,19 @@ void brake() {
 }
 
 bool ultRead() {
-    float ultReading = analogRead(ULT_SEN);
-    return (ultReading <= ULT_SEN_THRESHOLD);
+    pinMode(ULT_SEN,OUTPUT);
+    digitalWrite(ULT_SEN,LOW);
+
+    digitalWrite(ULT_SEN,HIGH);
+    delayMicroseconds(10);     
+    digitalWrite(ULT_SEN,LOW);
+
+    pinMode(ULT_SEN,INPUT);
+    pulseWidthUs = pulseIn(ULT_SEN,HIGH);
+
+    distance = pulseWidthUs * VELOCITY_TEMP(20) / 2.0;
+
+    return distance <= ULT_SEN_THRESHOLD;
 }
 
 void readIR(bool &line_detected, bool &line_started, bool &line_ended, int i) {
