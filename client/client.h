@@ -1,6 +1,9 @@
 #include "../graphStructs.h"
 #include "DW1000Ranging.h"
 
+// *** Utils *** //
+Node dequeue(Node queue[], int &queue_size);
+
 // *** Planning *** //
 void planPath(Node start, Node target, Node path[], char direction_queue[]);
 

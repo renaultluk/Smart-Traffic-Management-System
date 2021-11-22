@@ -26,8 +26,8 @@ Node* start;
 Node* target;
 Node path[NUM_NODES];
 char direction_queue[NUM_NODES];
-int path_index = 0;
-int direction_index = 0;
+int path_length = 0;
+int direction_length = 0;
 Node* destinations[NUM_NODES];
 
 void serialInputHandler() {
@@ -75,10 +75,13 @@ State followFunc() {
         cur_time = micros();
         if ((cur_time - prev_time)/1.0e6 > 1.0/CONTROL_FREQ) {
             if (nodeDistance() <= NODE_BOUNDS) {
-                direction_index++;
-                path_index++;
+                releaseEdge(&connectEdge(path[0],path[1]));
+
+                dequeue(path, path_length);
+                dequeue(direction_queue, direction_length);
+                
             }
-            if (!linePosition(direction_queue[direction_index])) {
+            if (!linePosition(direction_queue[0])) {
                 return STATE_ARRIVED;
             }
             prev_time = cur_time;
