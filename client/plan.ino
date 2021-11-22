@@ -1,5 +1,7 @@
 #include "../graphStructs.h"
 
+const int OCCUPIED_WEIGHT = 10;
+
 void enqueue(Node queue[], Node newNode, int &queue_size) {
     queue[queue_size] = newNode;
     queue_size++;
@@ -106,4 +108,16 @@ void planPath(Node start, Node target, Node path[], char direction_queue[]) {
     solve(start);
     reconstructPath(target, path);
     setDirectionQueue(direction_queue, path, start);
+}
+
+void releaseEdge(Edge *edge) {
+    edge->weight -= OCCUPIED_WEIGHT;
+}
+
+void replanPath(Node upcomingNode, Node target, Node path[], char direction_queue[], int path_length) {
+    for (int i = 0; i < path_length-1; i++) {
+        releaseEdge(&connectEdge(path[i], path[(i+1)]));
+        direction_queue[i] = ' ';
+    }
+    planPath(upcomingNode, target, path, direction_queue);
 }
