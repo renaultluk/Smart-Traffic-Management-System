@@ -4,8 +4,6 @@
 
 #define CONTROL_FREQ    20
 
-#define VEHICLE_ID       1
-
 #define NODE_BOUNDS      10
 
 typedef enum {

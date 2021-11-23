@@ -22,6 +22,16 @@ struct Edge {
     double weight;
 };
 
+struct weightChange {
+    int index;
+    int weight;
+};
+
+struct packageStruct {
+    int size;
+    weightChange changes[NUM_NODES];
+}
+
 Node newBlankNode();
 
 Node newNode(int index, double x, double y);
@@ -31,3 +41,5 @@ Edge connectEdge(Node node1, Node node2);
 const Node node_map[] = {};
 const Node* destinations[] = {};
 const Edge edge_map[] = {};
+
+packageStruct package;

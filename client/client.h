@@ -1,6 +1,8 @@
 #include "../graphStructs.h"
 #include "DW1000Ranging.h"
 
+#define VEHICLE_ID       1
+
 // *** Utils *** //
 Node dequeue(Node queue[], int &queue_size);
 

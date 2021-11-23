@@ -1,6 +1,8 @@
 #include <WiFiNINA.h> 
 #include <PubSubClient.h>
+#include <ArduinoJson.h>
 #include "credentials.h"
+#include "../graphStructs.h"
 
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);
@@ -27,6 +29,36 @@ void setup_wifi() {
   Serial.println(WiFi.localIP());
 }
 
+void createNewJSON(String topic, String payload) {
+  StaticJsonDocument<200> doc;
+}
+
+void addToJSON(JsonObject& root, int key, int value) {
+    JsonObject record = root.createNestedObject();
+    record["key"] = key;
+    record["value"] = value;
+}
+
+void parseWeightJson(String payload) {
+    StaticJsonDocument<200> doc;
+    DeserializationError error = deserializeJson(doc, payload);
+
+    if (error) {
+        Serial.print(F("deserializeJson() failed: "));
+        Serial.println(error.c_str());
+        return;
+    }
+
+    JsonObject root = doc.as<JsonObject>();
+    for (JsonPair kv : root) {
+        Serial.print(kv.key());
+        Serial.print(": ");
+        Serial.println(kv.value());
+
+        edge_map[kv.key()].weight += kv.value();
+    }
+}
+
 void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
@@ -38,9 +70,23 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.println();
 }
 
-void publishMap() {
-    string mapString = ",";
+void fetchMap() {
+
+}
+
+void publishMap(int path_length) {
+    string mapStr = "";
+    for (int i = 0; i < MAP_SIZE; i++) {
+        mapStr += String(map[i]);
+        mapStr += ",";
+    }
     client.publish("/map", "map");
+}
+
+void publishWeightChanges(JsonObject& weightChanges) {
+    string weightStr;
+    serializeJson(weightChanges, weightStr);
+    client.publish("/weights", weightStr);
 }
 
 void reconnect() 
