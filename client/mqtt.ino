@@ -11,6 +11,21 @@ char msg[50];
 int value = 0;
 int ledState = 0;
 
+void splitCommand(String payload, String commandList[]) {
+  int str_length = payload.length();
+  int list_index = 0;
+  int str_char_index = 0;
+  
+  for (int i = 0; i < str_length; i++) {
+    if (payload[i] == " ") {
+      list_index++;
+      str_char_index = 0;
+    } else {
+      commandList[list_index][str_char_index] = payload[i];
+    }
+  }
+}
+
 void setup_wifi() {
   delay(10);
   Serial.println();
@@ -113,6 +128,22 @@ void parseEdgeMap(String payload) {
         Node* end_node = node_map[edge_end_index];
         edge_map[i] = newEdge(edge_index, start_node, end_node, edge_weight);
     }
+}
+
+void parseCommandJson(String payload) {
+  StaticJsonDocument<200> doc;
+  DeserializationError error = deserializeJson(doc, payload);
+
+  if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.c_str());
+    return;
+  }
+
+  if ((int)doc["key"] == VEHICLE_ID) {
+    String command = doc["value"];
+    
+  }
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {

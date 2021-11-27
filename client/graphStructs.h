@@ -2,8 +2,6 @@
 #define NUM_EDGES = 0;
 #define NUM_DEST = 0;
 
-struct Edge;
-
 struct Node {
     int index;
     double x;
@@ -20,11 +18,6 @@ struct Edge {
     Node* start;
     Node* end;
     double weight;
-};
-
-struct weightChange {
-    int index;
-    int weight;
 };
 
 Node newBlankNode();
