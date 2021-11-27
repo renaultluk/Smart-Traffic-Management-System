@@ -84,9 +84,9 @@ void setDirectionQueue(char direction_queue[], Node path[], Node start) {
                 Edge prevEdge = connectEdge(prevNode, currentNode);
                 Edge nextEdge = connectEdge(currentNode, nextNode);
                 for (int j = 0; j < 3; j++) {
-                    if (prevEdge.index == currentNode.edges[j].index) {
+                    if (prevEdge.index == edge_map[currentNode.edges[j]].index) {
                         currentIndex = j;
-                    } else if (nextEdge.index == currentNode.edges[j].index) {
+                    } else if (nextEdge.index == edge_map[currentNode.edges[j]].index) {
                         nextIndex = j;
                     }
 

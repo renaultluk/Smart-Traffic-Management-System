@@ -9,7 +9,7 @@ struct Node {
     double x;
     double y;
     int degree;
-    Edge edges[3];
+    int edges[3];
     int distance = __INT_MAX__;
     Node* prev;
     bool visited = false;
