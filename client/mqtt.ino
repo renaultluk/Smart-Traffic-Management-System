@@ -29,14 +29,21 @@ void setup_wifi() {
   Serial.println(WiFi.localIP());
 }
 
-void createNewJSON(String topic, String payload) {
+void createNewJSON(String topic) {
   StaticJsonDocument<200> doc;
 }
 
-void addToJSON(JsonObject& root, int key, int value) {
+void addToJSON(JsonArray& root, int key, int value) {
     JsonObject record = root.createNestedObject();
     record["key"] = key;
     record["value"] = value;
+}
+
+void publishWeightChanges(JsonArray& weightChanges) {
+    String weightStr;
+    serializeJson(weightChanges, weightStr);
+    client.publish(weightTopic, weightStr);
+    createNewJSON(weightTopic);
 }
 
 void parseWeightJson(String payload) {
@@ -49,13 +56,55 @@ void parseWeightJson(String payload) {
         return;
     }
 
-    JsonObject root = doc.as<JsonObject>();
-    for (JsonPair kv : root) {
-        Serial.print(kv.key());
-        Serial.print(": ");
-        Serial.println(kv.value());
+    JsonArray root = doc.as<JsonArray>();
+    int root_size = root.size();
+    for (int i = 0; i < root_size; i++) {
+        int key = root[i]["key"];
+        int value = root[i]["value"]
+        edge_map[key].weight += value;
+    }
+}
 
-        edge_map[kv.key()].weight += kv.value();
+void parseNodeMap(String payload) {
+    StaticJsonDocument<200> doc;
+    DeserializationError error = deserializeJson(doc, payload);
+
+    if (error) {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.c_str());
+      return;
+    }
+
+    JsonArray root = doc.as<JsonArray>();
+    int root_size = root.size();
+    for (int i = 0; i < root_size; i++) {
+        int node_index = root[i]["index"];
+        int node_x = root[i]["x"];
+        int node_y = root[i]["y"];
+        node_map[i] = newNode(node_index, node_x, node_y);
+    }
+}
+
+void parseEdgeMap(String payload) {
+    StaticJsonDocument<200> doc;
+    DeserializationError error = deserializeJson(doc, payload);
+
+    if (error) {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.c_str());
+      return;
+    }
+
+    JsonArray root = doc.as<JsonArray>();
+    int root_size = root.size();
+    for (int i = 0; i < root_size; i++) {
+        int edge_index = root[i]["index"];
+        int edge_start_index = root[i]["start"];
+        int edge_end_index = root[i]["end"];
+        int edge_weight = root[i]["weight"];
+        Node* start_node = node_map[edge_start_index];
+        Node* end_node = node_map[edge_end_index];
+        edge_map[i] = newEdge(edge_index, start_node, end_node, edge_weight);
     }
 }
 
@@ -68,26 +117,22 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.print((char)payload[i]);
   }
   Serial.println();
+
+  switch (topic) {
+    case weightTopic:
+      parseWeightJson(payload);
+      break;
+    case nodeTopic:
+      parseNodeMap(payload);
+      break;
+    case edgeTopic:
+      parseEdgemap(payload);
+      break;
+    default:
+      Serial.println("Invalid topic");
+  }
 }
 
-void fetchMap() {
-
-}
-
-void publishMap(int path_length) {
-    string mapStr = "";
-    for (int i = 0; i < MAP_SIZE; i++) {
-        mapStr += String(map[i]);
-        mapStr += ",";
-    }
-    client.publish("/map", "map");
-}
-
-void publishWeightChanges(JsonObject& weightChanges) {
-    string weightStr;
-    serializeJson(weightChanges, weightStr);
-    client.publish("/weights", weightStr);
-}
 
 void reconnect() 
 {
@@ -103,7 +148,9 @@ void reconnect()
     {
       Serial.println("connected");
       // ... and resubscribe
-      client.subscribe(subTopic);
+      client.subscribe(weightTopic);
+      client.subscribe(nodeTopic);
+      client.subscribe(edgeTopic);
     } else 
     {
       Serial.print("failed, rc=");

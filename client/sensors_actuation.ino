@@ -145,10 +145,14 @@ void inactiveDevice(DW1000Device *device) {
 
 }
 
+float getDistance(DW1000Device *anchor, DW1000Device *tag) {
+    return distance;
+}
+
 void trilateration(DW1000Device *device, float coords[]) {
-    float r1;
-    float r2;
-    float r3;
+    float r1 = getDistance(device, device->getAnchor());
+    float r2 = getDistance(device, device->getAnchor());
+    float r3 = getDistance(device, device->getAnchor());
     
     float A = -2*x1 + 2*x2;
     float B = -2*y1 + 2*y2;

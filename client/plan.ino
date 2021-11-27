@@ -113,13 +113,13 @@ void planPath(Node start, Node target, Node path[], char direction_queue[]) {
 
 void releaseEdge(Edge *edge) {
     edge->weight -= OCCUPIED_WEIGHT;
-    weight_changes[weight_changes_size] = "";
+    addToJson(root, edge->index, -1*OCCUPIED_WEIGHT);
 }
 
 void replanPath(Node upcomingNode, Node target, Node path[], char direction_queue[], int path_length) {
+    planPath(upcomingNode, target, path, direction_queue);
     for (int i = 0; i < path_length-1; i++) {
         releaseEdge(&connectEdge(path[i], path[(i+1)]));
         direction_queue[i] = ' ';
     }
-    planPath(upcomingNode, target, path, direction_queue);
 }

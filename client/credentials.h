@@ -4,4 +4,6 @@ const char* password = "bqie7342";
 const char* mqttServer = "broker.emqx.io";
 const char* mqttUsername = "";
 const char* mqttPassword = "";
-char subTopic[] = "isdn4000g/develop-ideasss";
+const char weightTopic[] = "isdn4000g/stms/weights";
+const char nodeTopic[] = "isdn4000g/stms/nodes";
+const char edgeTopic[] = "isdn4000g/stms/edges";
