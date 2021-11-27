@@ -4,44 +4,18 @@
 #include "credentials.h"
 #include "graphStructs.h"
 
-WiFiClient wifiClient;
-PubSubClient client(wifiClient);
-long lastMsg = 0;
-char msg[50];
-int value = 0;
-int ledState = 0;
 
 void splitCommand(String payload, String commandList[]) {
   int str_length = payload.length();
   int list_index = 0;
-  int str_char_index = 0;
   
   for (int i = 0; i < str_length; i++) {
-    if (payload[i] == " ") {
+    if (payload[i] == ' ') {
       list_index++;
-      str_char_index = 0;
     } else {
-      commandList[list_index][str_char_index] = payload[i];
+      commandList.push_back(payload[i]);
     }
   }
-}
-
-void setup_wifi() {
-  delay(10);
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) 
-  {
-    delay(500);
-    Serial.print(".");
-  }
-  randomSeed(micros());
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
 }
 
 void createNewJSON(String topic) {
@@ -142,7 +116,20 @@ void parseCommandJson(String payload) {
 
   if ((int)doc["key"] == VEHICLE_ID) {
     String command = doc["value"];
+    String commandList[3];
+    splitCommand(command, commandList);
     
+    switch (commandList[0]) {
+      case 't':
+        if (commandList[1] == VEHICLE_ID) {
+            destMode = destMode == AUTO ? MANUAL : AUTO;
+        }
+        break;
+      case 'd':
+        break;
+      default:
+        break;
+    }
   }
 }
 
@@ -198,14 +185,6 @@ void reconnect()
       delay(5000);
     }
   }
-}
-
-void setup() 
-{
-  Serial.begin(115200);
-  setup_wifi();
-  client.setServer(mqttServer, 1883);
-  client.setCallback(callback);
 }
 
 void loop() {

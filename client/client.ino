@@ -1,3 +1,5 @@
+#include <WiFiNINA.h> 
+#include <PubSubClient.h>
 #include "graphStructs.h"
 #include "credentials.h"
 #include "client.h"
@@ -29,6 +31,13 @@ int direction_length = 0;
 Node* destinations[NUM_NODES];
 int dest_length = 0;
 
+WiFiClient wifiClient;
+PubSubClient client(wifiClient);
+long lastMsg = 0;
+char msg[50];
+int value = 0;
+int ledState = 0;
+
 void serialInputHandler() {
     char command = Serial.read();
     switch (command) {
@@ -47,6 +56,24 @@ void serialInputHandler() {
         default:
             break;
     }
+}
+
+void setup_wifi() {
+  delay(10);
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) 
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  randomSeed(micros());
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
 }
 
 void reset() {
@@ -121,6 +148,8 @@ State arrivedFunc() {
 void setup() {
     Serial.begin(115200);
     setup_wifi();
+    client.setServer(mqttServer, 1883);
+    client.setCallback(callback);
     initUWB();
 }
 
