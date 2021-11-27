@@ -35,6 +35,6 @@ Edge newEdge(int index, Node* start, Node* end, int weight);
 
 Edge connectEdge(Node node1, Node node2);
 
-const Node node_map[] = {};
-const Node* destinations[] = {};
-const Edge edge_map[] = {};
+Node node_map[] = {};
+Node* destinations[] = {};
+Edge edge_map[] = {};

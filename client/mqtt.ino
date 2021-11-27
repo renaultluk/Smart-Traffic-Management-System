@@ -31,6 +31,7 @@ void setup_wifi() {
 
 void createNewJSON(String topic) {
   StaticJsonDocument<200> doc;
+  weightsJson = doc.to<JsonArray>();
 }
 
 void addToJSON(JsonArray& root, int key, int value) {
@@ -81,7 +82,13 @@ void parseNodeMap(String payload) {
         int node_index = root[i]["index"];
         int node_x = root[i]["x"];
         int node_y = root[i]["y"];
+        bool dest = root[i]["dest"];
         node_map[i] = newNode(node_index, node_x, node_y);
+        
+        if (dest) {
+          destinations[dest_length] = &node_map[i];
+          dest_length++;
+        }
     }
 }
 

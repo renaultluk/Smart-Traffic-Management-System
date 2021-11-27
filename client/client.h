@@ -2,6 +2,7 @@
 #include "DW1000Ranging.h"
 
 #define VEHICLE_ID       1
+int dest_length;
 
 // *** Utils *** //
 Node dequeue(Node queue[], int &queue_size);
@@ -26,6 +27,8 @@ float nodeDistance(DW1000Device *device, Node *node);
 
 
 // *** MQTT *** //
+JsonArray weightsJson;
+
 void setup_wifi();
 
 void addToJSON(JsonObject& root, const char key, const char value);
