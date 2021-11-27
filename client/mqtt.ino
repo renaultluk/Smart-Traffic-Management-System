@@ -98,8 +98,8 @@ void parseEdgeMap(String payload) {
         int edge_start_index = root[i]["start"];
         int edge_end_index = root[i]["end"];
         int edge_weight = root[i]["weight"];
-        Node* start_node = node_map[edge_start_index];
-        Node* end_node = node_map[edge_end_index];
+        Node* start_node = &node_map[edge_start_index];
+        Node* end_node = &node_map[edge_end_index];
         edge_map[i] = newEdge(edge_index, start_node, end_node, edge_weight);
     }
 }
