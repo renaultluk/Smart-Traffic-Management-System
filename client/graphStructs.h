@@ -1,6 +1,6 @@
-const int NUM_NODES = 0;
-const int NUM_EDGES = 0;
-const int NUM_DEST = 0;
+#define NUM_NODES = 0;
+#define NUM_EDGES = 0;
+#define NUM_DEST = 0;
 
 struct Edge;
 
