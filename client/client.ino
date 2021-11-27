@@ -1,4 +1,4 @@
-#include "../graphStructs.h"
+#include "graphStructs.h"
 #include "credentials.h"
 #include "client.h"
 

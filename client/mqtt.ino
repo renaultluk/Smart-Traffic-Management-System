@@ -2,7 +2,7 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include "credentials.h"
-#include "../graphStructs.h"
+#include "graphStructs.h"
 
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);

@@ -1,4 +1,4 @@
-#include "../graphStructs.h"
+#include "graphStructs.h"
 #include <ArduinoJson.h>
 
 const int OCCUPIED_WEIGHT = 10;
