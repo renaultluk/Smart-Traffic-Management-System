@@ -1,6 +1,7 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <ArduinoJson.h>
 #include "graphStructs.h"
 #include "DW1000Ranging.h"
 
