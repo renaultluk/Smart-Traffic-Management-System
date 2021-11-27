@@ -1,3 +1,6 @@
+#ifndef CLIENT_H
+#define CLIENT_H
+
 #include "graphStructs.h"
 #include "DW1000Ranging.h"
 
@@ -34,3 +37,5 @@ void setup_wifi();
 void addToJSON(JsonObject& root, const char key, const char value);
 
 void publishWeightChanges(JsonArray& weightChanges);
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef GRAPHSTRUCTS_H
+#define GRAPHSTRUCTS_H
+
 #define NUM_NODES = 0;
 #define NUM_EDGES = 0;
 #define NUM_DEST = 0;
@@ -31,3 +34,5 @@ Edge connectEdge(Node node1, Node node2);
 Node node_map[] = {};
 Node* destinations[] = {};
 Edge edge_map[] = {};
+
+#endif
