@@ -15,7 +15,7 @@ const int pwmPins[CHANNELS] = {2, 3 , 11, 12};
 
 int pinArr[8] = {A0,A1,A2,A3,A4,A5,A6,A7};
 
-const float Kp = 5;
+const float Kp = 10;
 const float Ki = 0;
 const float Kd = 0;
 
@@ -27,8 +27,8 @@ float P_error;
 float I_error;
 float D_error;
 float integral = 0;
-float cruising_speed = 70;
-float line_threshold = 10;
+float cruising_speed = 80;
+float line_threshold = 5;
 float int_upper = 128;
 
 typedef enum {
@@ -125,7 +125,7 @@ void readIR(bool &line_detected, bool &line_started, bool &line_ended, int i) {
     Serial.print(i);
     Serial.print(": ");
     Serial.print(IR_reading);
-    if (IR_reading > line_threshold) {
+    if (IR_reading < line_threshold) {
         line_detected = true;
         if (!line_ended) {
             line_started = true;
@@ -214,7 +214,7 @@ void setup() {
     myServo.write(0);
     
     Serial.begin(9600);
-    while (!Serial);
+//    while (!Serial);
  
 }
  
@@ -225,8 +225,6 @@ bool linePosition(char direction) {
     bool line_ended = false;
 
     error = 0;
-
-    Serial.println("Entered linePosition");
 
     if (direction == 'l') {
         for (int i = 0; i < 8; i++) {
@@ -248,8 +246,10 @@ bool linePosition(char direction) {
      tmpCount += error;
 
      error = tmpCount/8;
-     error += 2;
-     Serial.println(error);
+     error -= 2;
+//     avArr[7] = error;
+     Serial.print("error: ");
+     Serial.print(error);
 
     //TODO: check if the node is passed and update the direction_index
 
@@ -263,6 +263,8 @@ bool linePosition(char direction) {
 //    last_error = error;
 
     float out = P_error;
+    Serial.print(" \t out: ");
+    Serial.println(out);
 
     motorDrive(cruising_speed - out, M1IN1, M1IN2);
     motorDrive(cruising_speed + out, M2IN1, M2IN2);
