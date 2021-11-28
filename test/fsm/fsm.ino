@@ -12,12 +12,21 @@ const uint8_t CHANNELS = 4;
 const int pwmPins[CHANNELS] = {2, 3 , 11, 12};
 
 int pinArr[8] = {A0,A1,A2,A3,A4,A5,A6,A7};
-float avArr[8];
 
-byte noLine = 0;
-float line_threshold = 10.0;
-byte finishLine = 0;
+const float Kp = 0.1;
+const float Ki = 0;
+const float Kd = 0;
 
+int error = 0;
+int last_error = 0;
+
+float P_error;
+float I_error;
+float D_error;
+float integral = 0;
+float cruising_speed = 100;
+float line_threshold = 10;
+float int_upper = 128;
 
 typedef enum {
     Follow_state = 0,       // The initial state, robot should be following line
@@ -107,14 +116,19 @@ float ultRead(int pin) {
 
 /********************************* IR SENSOR *******************************/
 
-float obtain_position_fromIR()
-{
+void readIR(bool &line_detected, bool &line_started, bool &line_ended, int i) {
     float IR_reading = analogRead(i);
     if (IR_reading > line_threshold) {
-    noLine = 0;
-    error = error + i - 4;
+        line_detected = true;
+        if (!line_ended) {
+            line_started = true;
+            error = error + i - 4;
+        } else {
+            if (line_started) {
+                line_ended = true;
+            }
+        }
     }
-    
 }
 
 
@@ -205,11 +219,11 @@ bool linePosition(char direction) {
     direction = 'l'; // * test
 
     if (direction == 'l') {
-        for (int i = 2; i < NUM_SENSORS+2; i++) {
+        for (int i = 0; i < 8; i++) {
             readIR(line_detected, line_started, line_ended, i);
         }
     } else if (direction == 'r') {
-        for (int i = NUM_SENSORS+1; i >= 2; i--) {
+        for (int i = 7; i >= 0; i--) {
             readIR(line_detected, line_started, line_ended, i);
         }
     }
@@ -220,7 +234,7 @@ bool linePosition(char direction) {
     
     integral += error;
     I_error = Ki * integral;
-    if (fabs(I_error) > INT_UPPER) I_error = I_error > 0 ? INT_UPPER : -INT_UPPER;
+    if (fabs(I_error) > int_upper) I_error = I_error > 0 ? int_upper : -int_upper;
 
     D_error = Kd * (error - last_error);
     last_error = error;
@@ -244,7 +258,7 @@ State_type followFunc() {
         //     return STATE_BRAKING;
         // }
       cur_time = micros();
-      if ((cur_time - prev_time)/1.0e6 > 1.0/CONTROL_FREQ) {
+      if ((cur_time - prev_time)/1.0e6 > 1.0/control_freq) {
           // if (nodeDistance() <= NODE_BOUNDS) {
           //     releaseEdge(&connectEdge(path[0],path[1]));
           //     publishWeightChanges(weightsJson);
