@@ -1,5 +1,7 @@
 #include <Servo.h>
 
+//new
+
 #define M1IN1       12
 #define M1IN2       11
 #define M2IN1       10
@@ -13,7 +15,7 @@ const int pwmPins[CHANNELS] = {2, 3 , 11, 12};
 
 int pinArr[8] = {A0,A1,A2,A3,A4,A5,A6,A7};
 
-const float Kp = 0.1;
+const float Kp = 40;
 const float Ki = 0;
 const float Kd = 0;
 
@@ -117,7 +119,7 @@ float ultRead(int pin) {
 /********************************* IR SENSOR *******************************/
 
 void readIR(bool &line_detected, bool &line_started, bool &line_ended, int i) {
-    float IR_reading = analogRead(i);
+    float IR_reading = 1024.0 - analogRead(i);
     Serial.print("Sensor ");
     Serial.print(i);
     Serial.print(" value: ");
@@ -211,6 +213,7 @@ void setup() {
     myServo.write(0);
     
     Serial.begin(9600);
+    while (!Serial);
  
 }
  
@@ -220,7 +223,9 @@ bool linePosition(char direction) {
     bool line_started = false;
     bool line_ended = false;
 
-    direction = 'l'; // * test
+    error = 0;
+
+    Serial.println("Entered linePosition");
 
     if (direction == 'l') {
         for (int i = 0; i < 8; i++) {
@@ -236,15 +241,15 @@ bool linePosition(char direction) {
     //TODO: check if the node is passed and update the direction_index
 
     P_error = Kp * error;
-    
-    integral += error;
-    I_error = Ki * integral;
-    if (fabs(I_error) > int_upper) I_error = I_error > 0 ? int_upper : -int_upper;
+//    
+//    integral += error;
+//    I_error = Ki * integral;
+//    if (fabs(I_error) > int_upper) I_error = I_error > 0 ? int_upper : -int_upper;
+//
+//    D_error = Kd * (error - last_error);
+//    last_error = error;
 
-    D_error = Kd * (error - last_error);
-    last_error = error;
-
-    float out = P_error + I_error + D_error;
+    float out = P_error;
 
     motorDrive(cruising_speed + out, M1IN1, M1IN2);
     motorDrive(cruising_speed - out, M2IN1, M2IN2);
@@ -272,9 +277,9 @@ State_type followFunc() {
           //     dequeue(direction_queue, direction_length);
               
           // }
-//          if (!linePosition(direction_queue[0])) {
+          if (!linePosition('l')) {
 //              return STATE_ARRIVED;
-//          }
+          }
           prev_time = cur_time;
       }
     }
