@@ -1,14 +1,15 @@
 #include <SPI.h>
 #include "DW1000Ranging.h"
 
-#define LINE_THRESHOLD   50
+#define LINE_THRESHOLD    5
+#define LED_THRESHOLD    50
 #define NUM_SENSORS       8
 #define INT_UPPER       128
 
-#define M1IN1             8
-#define M1IN2            10
-#define M2IN1            11
-#define M2IN2            12
+#define M1IN1            12
+#define M1IN2            11
+#define M2IN1            10
+#define M2IN2            2
 
 #define ULT_SEN           9
 #define ULT_SEN_THRESHOLD 5
@@ -96,30 +97,41 @@ bool linePosition(char direction) {
     bool line_ended = false;
 
     if (direction == 'l') {
-        for (int i = 2; i < NUM_SENSORS+2; i++) {
+        for (int i = 0; i < NUM_SENSORS; i++) {
             readIR(line_detected, line_started, line_ended, i);
         }
     } else if (direction == 'r') {
-        for (int i = NUM_SENSORS+1; i >= 2; i--) {
+        for (int i = NUM_SENSORS-1; i >= 0; i--) {
             readIR(line_detected, line_started, line_ended, i);
         }
     }
+
+    int tmpCount = 0;
+    for (int i = 1; i < 8; i++) {
+      tmpCount += avArr[i];
+      avArr[i-1] = avArr[i];
+     }
+     avArr[7] = error;
+     tmpCount += error;
+
+     error = tmpCount/8;
+     error -= 2;
 
     //TODO: check if the node is passed and update the direction_index
 
     P_error = Kp * error;
     
-    integral += error;
-    I_error = Ki * integral;
-    if (fabs(I_error) > INT_UPPER) I_error = I_error > 0 ? INT_UPPER : -INT_UPPER;
+    // integral += error;
+    // I_error = Ki * integral;
+    // if (fabs(I_error) > INT_UPPER) I_error = I_error > 0 ? INT_UPPER : -INT_UPPER;
 
-    D_error = Kd * (error - last_error);
-    last_error = error;
+    // D_error = Kd * (error - last_error);
+    // last_error = error;
 
-    float out = P_error + I_error + D_error;
+    float out = P_error;
 
-    motorDrive(cruising_speed + out, M1IN1, M1IN2);
-    motorDrive(cruising_speed - out, M2IN1, M2IN2);
+    motorDrive(cruising_speed - out, M1IN1, M1IN2);
+    motorDrive(cruising_speed + out, M2IN1, M2IN2);
     
     return line_detected;
 }
