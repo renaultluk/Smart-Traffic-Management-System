@@ -122,7 +122,6 @@ void planPath(Node* start, Node* target, Node* path[], char direction_queue[]) {
 }
 
 void releaseEdge(Edge *edge) {
-    edge->weight -= OCCUPIED_WEIGHT;
     addToJSON(weightsJson, edge->index, -1*OCCUPIED_WEIGHT);
 }
 
