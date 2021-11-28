@@ -58,79 +58,6 @@ void parseWeightJson(String payload) {
     }
 }
 
-void parseNodeMap(String payload) {
-    StaticJsonDocument<200> doc;
-    DeserializationError error = deserializeJson(doc, payload);
-
-    if (error) {
-      Serial.print(F("deserializeJson() failed: "));
-      Serial.println(error.c_str());
-      return;
-    }
-
-    JsonArray root = doc.as<JsonArray>();
-    int root_size = root.size();
-    for (int i = 0; i < root_size; i++) {
-        int node_index = root[i]["index"];
-        int node_x = root[i]["x"];
-        int node_y = root[i]["y"];
-        bool dest = root[i]["dest"];
-        node_map[i] = newNode(node_index, node_x, node_y);
-        
-        if (dest) {
-          destinations[dest_length] = &node_map[i];
-          dest_length++;
-        }
-    }
-}
-
-void parseEdgeMap(String payload) {
-    StaticJsonDocument<200> doc;
-    DeserializationError error = deserializeJson(doc, payload);
-
-    if (error) {
-      Serial.print(F("deserializeJson() failed: "));
-      Serial.println(error.c_str());
-      return;
-    }
-
-    JsonArray root = doc.as<JsonArray>();
-    int root_size = root.size();
-    for (int i = 0; i < root_size; i++) {
-        int edge_index = root[i]["index"];
-        int edge_start_index = root[i]["start"];
-        int edge_end_index = root[i]["end"];
-        int edge_weight = root[i]["weight"];
-        Node* start_node = &node_map[edge_start_index];
-        Node* end_node = &node_map[edge_end_index];
-        edge_map[i] = newEdge(edge_index, start_node, end_node, edge_weight);
-    }
-}
-
-void parseCommandJson(String payload) {
-  StaticJsonDocument<200> doc;
-  DeserializationError error = deserializeJson(doc, payload);
-
-  if (error) {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(error.c_str());
-    return;
-  }
-
-  if ((int)doc["key"] == VEHICLE_ID) {
-    String command = doc["value"];
-    String commandList[3];
-    splitCommand(command, commandList);
-    
-    if (commandList[0] == "t") {
-        if (commandList[1].toInt() == VEHICLE_ID) {
-            destMode = destMode == AUTO ? MANUAL : AUTO;
-        }
-    } else if (commandList[0] == "d") {
-    }
-  }
-}
-
 void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
@@ -142,15 +69,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
   Serial.println();
 
-  if (topic == weightTopic) {
-      parseWeightJson(payloadStr);
-  } else if (topic == nodeTopic) {
-      parseNodeMap(payloadStr);
-  } else if (topic == edgeTopic) {
-      parseEdgeMap(payloadStr);
-  } else if (topic == commandTopic) {
-      parseCommandJson(payloadStr);
-  }
+  parseWeightJson(payloadStr);
 }
 
 
@@ -169,8 +88,6 @@ void reconnect()
       Serial.println("connected");
       // ... and resubscribe
       client.subscribe(weightTopic);
-      client.subscribe(nodeTopic);
-      client.subscribe(edgeTopic);
     } else 
     {
       Serial.print("failed, rc=");
