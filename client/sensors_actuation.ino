@@ -14,18 +14,6 @@
 #define ULT_SEN_THRESHOLD 5
 #define    VELOCITY_TEMP(temp)       ( ( 331.5 + 0.6 * (float)( temp ) ) * 100 / 1000000.0 )
 
-
-#define PIN_RST           3
-#define PIN_SS            SS
-#define PIN_IRQ           2
-
-//const float x1 = 0.0;
-//const float y1 = 0.0;
-//const float x2 = 0.0;
-//const float y2 = 0.0;
-//const float x3 = 0.0;
-//const float y3 = 0.0;
-
 const float Kp = 10;
 const float Ki = 0;
 const float Kd = 0;
