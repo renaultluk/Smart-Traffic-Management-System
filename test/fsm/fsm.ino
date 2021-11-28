@@ -118,6 +118,10 @@ float ultRead(int pin) {
 
 void readIR(bool &line_detected, bool &line_started, bool &line_ended, int i) {
     float IR_reading = analogRead(i);
+    Serial.print("Sensor ");
+    Serial.print(i);
+    Serial.print(" value: ");
+    Serial.print(IR_reading);
     if (IR_reading > line_threshold) {
         line_detected = true;
         if (!line_ended) {
@@ -227,6 +231,7 @@ bool linePosition(char direction) {
             readIR(line_detected, line_started, line_ended, i);
         }
     }
+    Serial.println();
 
     //TODO: check if the node is passed and update the direction_index
 
