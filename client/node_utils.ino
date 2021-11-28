@@ -30,7 +30,8 @@ Edge newEdge(int index, Node* start, Node* end, int weight) {
 Edge* connectEdge(Node* node1, Node* node2) {
     int map_length = sizeof(edge_map)/sizeof(*edge_map);
     for (int i = 0; i < map_length; i++) {
-        if (edge_map[i].start->index == node1->index && edge_map[i].end->index == node2->index) {
+        if ((edge_map[i].start->index == node1->index && edge_map[i].end->index == node2->index) ||
+        (edge_map[i].start->index == node2->index && edge_map[i].end->index == node1->index)) {
             return &edge_map[i];
         }
     }

@@ -1,8 +1,8 @@
 #ifndef GRAPHSTRUCTS_H
 #define GRAPHSTRUCTS_H
 
-#define NUM_NODES   17
-#define NUM_EDGES   26
+#define NUM_NODES   20
+#define NUM_EDGES   27
 #define NUM_DEST    3
 
 struct Node {

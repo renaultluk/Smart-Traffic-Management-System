@@ -40,7 +40,7 @@ void solve(Node* start) {
         Node* current = queue[0];
         queue[0]->visited = true;
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < current->degree; i++) {
             Edge edge = edge_map[current->edges[i]];
             Node* nextNode = outgoing(current, edge);
 
@@ -60,19 +60,20 @@ void solve(Node* start) {
 
 void reconstructPath(Node* target, Node* path[]) {
     Node* tmpPath[NUM_NODES];
-    int i = 0;
+    tmpPath[0] = target;
+    int i = 1;
     while (target->prev != nullptr) {
         tmpPath[i] = target->prev;
         target = target->prev;
         i++;
     }
-    for (int j = i - 1; j >= 0; j--) {
+    for (int j = 0; j < i; j++) {
         path[j] = tmpPath[i - j - 1];
     }
 }
 
 void setDirectionQueue(char direction_queue[], Node* path[], Node* start) {
-    int path_length = sizeof(path)/sizeof(*path);
+    int path_length = *(path + 1) - path;
     int direction_queue_size = 0;
     for (int i = 0; i < path_length-2; i++) {
         Node* prevNode = path[i];
