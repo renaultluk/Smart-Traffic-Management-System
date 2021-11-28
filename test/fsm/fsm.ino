@@ -272,9 +272,9 @@ State_type followFunc() {
           //     dequeue(direction_queue, direction_length);
               
           // }
-          if (!linePosition(direction_queue[0])) {
-              return STATE_ARRIVED;
-          }
+//          if (!linePosition(direction_queue[0])) {
+//              return STATE_ARRIVED;
+//          }
           prev_time = cur_time;
       }
     }
