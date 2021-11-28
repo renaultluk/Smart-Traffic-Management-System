@@ -1,5 +1,7 @@
 #include <Servo.h>
 
+//new
+
 #define M1IN1       12
 #define M1IN2       11
 #define M2IN1       10
@@ -12,12 +14,22 @@ const uint8_t CHANNELS = 4;
 const int pwmPins[CHANNELS] = {2, 3 , 11, 12};
 
 int pinArr[8] = {A0,A1,A2,A3,A4,A5,A6,A7};
-float avArr[8];
 
-byte noLine = 0;
-float line_threshold = 10.0;
-byte finishLine = 0;
+const float Kp = 10;
+const float Ki = 0;
+const float Kd = 0;
 
+int error = 0;
+int last_error = 0;
+int avArr[8] = {0,0,0,0,0,0,0,0};
+
+float P_error;
+float I_error;
+float D_error;
+float integral = 0;
+float cruising_speed = 80;
+float line_threshold = 5;
+float int_upper = 128;
 
 typedef enum {
     Follow_state = 0,       // The initial state, robot should be following line
@@ -107,55 +119,23 @@ float ultRead(int pin) {
 
 /********************************* IR SENSOR *******************************/
 
-float obtain_position_fromIR()
-{
-    noLine = 1;
-    finishLine = 1;
-    float tmpPos = 0.0;
-    float finPos = 0.0;
-    float valSum = 0.0;
-    float tmpVal = 0;
-    for (int i=0; i<8; i++) {
-      tmpVal = 1024.0 - analogRead(pinArr[i]);
-      tmpPos += tmpVal * i;
-      if (tmpVal > line_threshold) {
-        noLine = 0;
-      }
-      if (tmpVal < 40) {
-        finishLine = 0;
-      }
-      Serial.print("Sensor ");
-      Serial.print(i);
-      Serial.print(": ");
-      Serial.print(tmpVal);
-      Serial.print("\t");
-      valSum += tmpVal;
+void readIR(bool &line_detected, bool &line_started, bool &line_ended, int i) {
+    float IR_reading = 1024.0 - analogRead(i);
+    Serial.print("Sensor ");
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.print(IR_reading);
+    if (IR_reading < line_threshold) {
+        line_detected = true;
+        if (!line_ended) {
+            line_started = true;
+            error = error + i - 4;
+        } else {
+            if (line_started) {
+                line_ended = true;
+            }
+        }
     }
-    if (!noLine) {
-      tmpPos = tmpPos/valSum;
-      tmpPos = tmpPos/8.0*1000.0;
-      tmpPos = map(tmpPos, 110.0, 750.0, 0.0, 1000.0);
-      tmpPos = map(tmpPos, 300.0, 700.0, 0.0, 1000.0);
-
-//      for (int j=0; j<7; j++) {
-//        avArr[j] = avArr[j+1];
-//      }
-//      avArr[7] = tmpPos;
-//    
-//      for (int k=0; k<8; k++) {
-//        finPos += avArr[k];
-//      } 
-//
-//      finPos = finPos/8.0;
-      finPos = tmpPos;
-      Serial.print(finPos);
-      Serial.print("\n");
-
-      return finPos;  //TODO    
-    } else {
-      Serial.println();
-    }
-    
 }
 
 
@@ -234,66 +214,76 @@ void setup() {
     myServo.write(0);
     
     Serial.begin(9600);
+//    while (!Serial);
  
 }
  
  
+bool linePosition(char direction) {
+    bool line_detected = false;   
+    bool line_started = false;
+    bool line_ended = false;
+
+    error = 0;
+
+    if (direction == 'l') {
+        for (int i = 0; i < 8; i++) {
+            readIR(line_detected, line_started, line_ended, i);
+        }
+    } else if (direction == 'r') {
+        for (int i = 7; i >= 0; i--) {
+            readIR(line_detected, line_started, line_ended, i);
+        }
+    }
+    Serial.println();
+
+    int tmpCount = 0;
+    for (int i = 1; i < 8; i++) {
+      tmpCount += avArr[i];
+      avArr[i-1] = avArr[i];
+     }
+     avArr[7] = error;
+     tmpCount += error;
+
+     error = tmpCount/8;
+     error -= 2;
+//     avArr[7] = error;
+     Serial.print("error: ");
+     Serial.print(error);
+
+    //TODO: check if the node is passed and update the direction_index
+
+    P_error = Kp * error;
+//    
+//    integral += error;
+//    I_error = Ki * integral;
+//    if (fabs(I_error) > int_upper) I_error = I_error > 0 ? int_upper : -int_upper;
+//
+//    D_error = Kd * (error - last_error);
+//    last_error = error;
+
+    float out = P_error;
+    Serial.print(" \t out: ");
+    Serial.println(out);
+
+    motorDrive(cruising_speed - out, M1IN1, M1IN2);
+    motorDrive(cruising_speed + out, M2IN1, M2IN2);
+    
+    return line_detected;
+}
 // Implement the line following routine here, exit this function when either:
 // The ultrasonic sensor detects an obstacle, returning Grab_state   OR
 // The finish line is detected, returning Finished_state
-State_type followFunc() {
- 
-    int ult_counter = 0;
-    int no_line_counter = 0;
-    
-    Serial.println("Entering Line Following State!");
- 
+State_type followFunc() {    
+    Serial.println("Entering Line Following State!"); 
+    float cur_time = micros();
+    float prev_time = cur_time;
     while (true) {
- 
-        // Detect if an obstacle is in front of the robot, return Grab_state if so
-        float ult_res = ultRead(ULT_SEN);
-        Serial.println(ult_res);
-        if (ult_counter >= 5) {
-          return Grab_state;
-        }
-        else if (ult_res <= 3 || ult_res >= 1100) {
-          ult_counter++;
-        }
-        // Detect if the robot has reached the finish line, return Finished_state if so
-//        else if (no_line_counter >= 5) {
-//          return Finished_state;
-//        }
-//        else if (noLine) {
-//          no_line_counter++;
-//        }
-
-        else if (finishLine) {
-          return Finished_state;
-        }
-        // Perform PID line following
-        else {
-          ult_counter = 0;
-          no_line_counter = 0;
-          //line following  if (dt > 1.0/control_freq)
-          float dt = (micros() - last_time)/ 1.0e6;
-          if (dt > 1.0/control_freq)
-          {
-            float whereAmI = obtain_position_fromIR();
-            float whereDoIWantToGo = 500;                      //TODO
- 
-            PID_controller.update(whereAmI, whereDoIWantToGo);                     //TODO 
- 
-            float delta_control = PID_controller.get_control();
-    
-            float constant_speed = 72;                        //TODO: Default Cruising speed
- 
-            //Differential Drive
-            motorDrive(constant_speed - delta_control, M1IN1, M1IN2); //TODO
-            motorDrive(constant_speed + delta_control, M2IN1, M2IN2); //TODO
-    
-          }
-        } 
- 
+      cur_time = micros();
+      if ((cur_time - prev_time)/1.0e6 > 1.0/control_freq) {
+          linePosition('l');
+          prev_time = cur_time;
+      }
     }
 }
  
@@ -352,6 +342,7 @@ void loop() {
     State_type robotState = Follow_state;
  
     while (true) {
+        Serial.println("new State");
         switch (robotState) {
             case Follow_state:
                 robotState = followFunc();
