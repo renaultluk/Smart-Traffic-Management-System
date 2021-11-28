@@ -10,5 +10,6 @@ const char* mqttPassword = "";
 const char weightTopic[] = "isdn4000g/stms/weights";
 const char nodeTopic[] = "isdn4000g/stms/nodes";
 const char edgeTopic[] = "isdn4000g/stms/edges";
+const char commandTopic[] = "isdn4000g/stms/command";
 
 #endif

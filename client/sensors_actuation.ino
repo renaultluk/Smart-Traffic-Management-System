@@ -1,5 +1,5 @@
+#include "client.h"
 #include <SPI.h>
-#include "DW1000Ranging.h"
 
 #define LINE_THRESHOLD   50
 #define NUM_SENSORS       8
@@ -15,16 +15,16 @@
 #define    VELOCITY_TEMP(temp)       ( ( 331.5 + 0.6 * (float)( temp ) ) * 100 / 1000000.0 )
 
 
-#define PIN_RST           7
-#define PIN_SS            4
+#define PIN_RST           3
+#define PIN_SS            SS
 #define PIN_IRQ           2
 
-const float x1 = 0.0;
-const float y1 = 0.0;
-const float x2 = 0.0;
-const float y2 = 0.0;
-const float x3 = 0.0;
-const float y3 = 0.0;
+//const float x1 = 0.0;
+//const float y1 = 0.0;
+//const float x2 = 0.0;
+//const float y2 = 0.0;
+//const float x3 = 0.0;
+//const float y3 = 0.0;
 
 const float Kp = 0.1;
 const float Ki = 0;
@@ -124,13 +124,17 @@ bool linePosition(char direction) {
     return line_detected;
 }
 
-void initUWB() {
-    DW1000Ranging.initCommunication(PIN_RST, PIN_SS, PIN_IRQ);
-    DW1000Ranging.attachNewRange(newRange);
-    DW1000Ranging.attachNewDevice(newDevice);
-    DW1000Ranging.attachInactiveDevice(inactiveDevice);
+void setup_lampposts() {
+  
+}
 
-    DW1000Ranging.startAsTag();
+void initUWB() {
+//    DW1000Ranging.initCommunication(PIN_RST, PIN_SS, PIN_IRQ);
+//    DW1000Ranging.attachNewRange(newRange);
+//    DW1000Ranging.attachNewDevice(newDevice);
+//    DW1000Ranging.attachInactiveDevice(inactiveDevice);
+//
+//    DW1000Ranging.startAsTag();
 }
 
 void newRange() {
@@ -146,20 +150,28 @@ void inactiveDevice(DW1000Device *device) {
 }
 
 float getDistance(DW1000Device *anchor, DW1000Device *tag) {
+    float distance = 0;
     return distance;
 }
 
 void trilateration(DW1000Device *device, float coords[]) {
-    float r1 = getDistance(device, device->getAnchor());
-    float r2 = getDistance(device, device->getAnchor());
-    float r3 = getDistance(device, device->getAnchor());
+    float r1 = getDistance(lamppost_arr[0].anchor, device);
+    float r2 = getDistance(lamppost_arr[1].anchor, device);
+    float r3 = getDistance(lamppost_arr[2].anchor, device);
     
-    float A = -2*x1 + 2*x2;
-    float B = -2*y1 + 2*y2;
-    float C = pow(r1,2) - pow(r2,2) - pow(x1,2) + pow(x2,2) - pow(y1,2) + pow(y2,2);
-    float D = -2*x2 + 2*x3;
-    float E = -2*y2 + 2*y3;
-    float F = pow(r2,2) - pow(r3,2) - pow(x2,2) + pow(x3,2) - pow(y2,2) + pow(y3,2);
+    // float A = -2*x1 + 2*x2;
+    // float B = -2*y1 + 2*y2;
+    // float C = pow(r1,2) - pow(r2,2) - pow(x1,2) + pow(x2,2) - pow(y1,2) + pow(y2,2);
+    // float D = -2*x2 + 2*x3;
+    // float E = -2*y2 + 2*y3;
+    // float F = pow(r2,2) - pow(r3,2) - pow(x2,2) + pow(x3,2) - pow(y2,2) + pow(y3,2);
+
+    float A = -2*lamppost_arr[0].x + 2*lamppost_arr[1].x;
+    float B = -2*lamppost_arr[0].y + 2*lamppost_arr[1].y;
+    float C = pow(r1,2) - pow(r2,2) - pow(lamppost_arr[0].x,2) + pow(lamppost_arr[1].x,2) - pow(lamppost_arr[0].y,2) + pow(lamppost_arr[1].y,2);
+    float D = -2*lamppost_arr[1].x + 2*lamppost_arr[2].x;
+    float E = -2*lamppost_arr[1].y + 2*lamppost_arr[2].y;
+    float F = pow(r2,2) - pow(r3,2) - pow(lamppost_arr[1].x,2) + pow(lamppost_arr[2].x,2) - pow(lamppost_arr[1].y,2) + pow(lamppost_arr[2].y,2);
 
     coords[0] = (C*E - F*B)/(E*A - B*D);
     coords[1] = (C*D - A*F)/(B*D - A*E);

@@ -13,7 +13,7 @@ void splitCommand(String payload, String commandList[]) {
     if (payload[i] == ' ') {
       list_index++;
     } else {
-      commandList.push_back(payload[i]);
+      commandList[list_index] += payload[i];
     }
   }
 }
@@ -32,7 +32,10 @@ void addToJSON(JsonArray& root, int key, int value) {
 void publishWeightChanges(JsonArray& weightChanges) {
     String weightStr;
     serializeJson(weightChanges, weightStr);
-    client.publish(weightTopic, weightStr);
+    byte arrSize = weightStr.length() + 1;
+    char msg[arrSize];
+    weightStr.toCharArray(msg, arrSize);
+    client.publish(weightTopic, msg);
     createNewJSON(weightTopic);
 }
 
@@ -50,7 +53,7 @@ void parseWeightJson(String payload) {
     int root_size = root.size();
     for (int i = 0; i < root_size; i++) {
         int key = root[i]["key"];
-        int value = root[i]["value"]
+        int value = root[i]["value"];
         edge_map[key].weight += value;
     }
 }
@@ -119,16 +122,11 @@ void parseCommandJson(String payload) {
     String commandList[3];
     splitCommand(command, commandList);
     
-    switch (commandList[0]) {
-      case 't':
-        if (commandList[1] == VEHICLE_ID) {
+    if (commandList[0] == "t") {
+        if (commandList[1].toInt() == VEHICLE_ID) {
             destMode = destMode == AUTO ? MANUAL : AUTO;
         }
-        break;
-      case 'd':
-        break;
-      default:
-        break;
+    } else if (commandList[0] == "d") {
     }
   }
 }
@@ -137,24 +135,21 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
+  String payloadStr;
   for (int i = 0; i < length; i++) 
   {
-    Serial.print((char)payload[i]);
+    payloadStr += (char)payload[i];
   }
   Serial.println();
 
-  switch (topic) {
-    case weightTopic:
-      parseWeightJson(payload);
-      break;
-    case nodeTopic:
-      parseNodeMap(payload);
-      break;
-    case edgeTopic:
-      parseEdgemap(payload);
-      break;
-    default:
-      Serial.println("Invalid topic");
+  if (topic == weightTopic) {
+      parseWeightJson(payloadStr);
+  } else if (topic == nodeTopic) {
+      parseNodeMap(payloadStr);
+  } else if (topic == edgeTopic) {
+      parseEdgeMap(payloadStr);
+  } else if (topic == commandTopic) {
+      parseCommandJson(payloadStr);
   }
 }
 
@@ -187,13 +182,13 @@ void reconnect()
   }
 }
 
-void loop() {
-  if (!client.connected()) {
-    reconnect();
-  }
-  client.loop();
-  long now = millis();
-  if (now - lastMsg > 5000) {
-    lastMsg = now;
-  }
-}
+//void loop() {
+//  if (!client.connected()) {
+//    reconnect();
+//  }
+//  client.loop();
+//  long now = millis();
+//  if (now - lastMsg > 5000) {
+//    lastMsg = now;
+//  }
+//}

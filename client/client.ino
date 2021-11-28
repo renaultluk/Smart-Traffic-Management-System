@@ -24,12 +24,12 @@ enum { MANUAL, AUTO } destMode;
 
 Node* start;
 Node* target;
-Node path[NUM_NODES];
+Node* path[NUM_NODES];
 char direction_queue[NUM_NODES];
 int path_length = 0;
 int direction_length = 0;
-Node* destinations[NUM_NODES];
-int dest_length = 0;
+// Node* destinations[NUM_NODES];
+// int dest_length = 0;
 
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);
@@ -43,7 +43,7 @@ void serialInputHandler() {
     switch (command) {
         case 'd':
             if (Serial.parseInt() == VEHICLE_ID) {
-                target.index = Serial.parseInt();
+                target->index = Serial.parseInt();
             }
             break;
     
@@ -80,7 +80,7 @@ void reset() {
     start = target;
     target = nullptr;
     for (int i = 0; i < NUM_NODES; i++) {
-        path[i] = Node();
+        path[i] = nullptr;
         direction_queue[i] = '\0';
         destinations[i] = nullptr;
     }
@@ -100,8 +100,9 @@ State followFunc() {
         }
         cur_time = micros();
         if ((cur_time - prev_time)/1.0e6 > 1.0/CONTROL_FREQ) {
-            if (nodeDistance() <= NODE_BOUNDS) {
-                releaseEdge(&connectEdge(path[0],path[1]));
+            if (nodeDistance(tag, path[0]) <= NODE_BOUNDS) {
+                Edge* tmpEdge = connectEdge(path[0],path[1]);
+                releaseEdge(tmpEdge);
                 publishWeightChanges(weightsJson);
 
                 dequeue(path, path_length);
