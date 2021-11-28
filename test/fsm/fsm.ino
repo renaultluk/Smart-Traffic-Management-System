@@ -15,7 +15,7 @@ const int pwmPins[CHANNELS] = {2, 3 , 11, 12};
 
 int pinArr[8] = {A0,A1,A2,A3,A4,A5,A6,A7};
 
-const float Kp = 40;
+const float Kp = 5;
 const float Ki = 0;
 const float Kd = 0;
 
@@ -27,7 +27,7 @@ float P_error;
 float I_error;
 float D_error;
 float integral = 0;
-float cruising_speed = 100;
+float cruising_speed = 70;
 float line_threshold = 10;
 float int_upper = 128;
 
@@ -248,6 +248,8 @@ bool linePosition(char direction) {
      tmpCount += error;
 
      error = tmpCount/8;
+     error += 2;
+     Serial.println(error);
 
     //TODO: check if the node is passed and update the direction_index
 
@@ -262,8 +264,8 @@ bool linePosition(char direction) {
 
     float out = P_error;
 
-    motorDrive(cruising_speed + out, M1IN1, M1IN2);
-    motorDrive(cruising_speed - out, M2IN1, M2IN2);
+    motorDrive(cruising_speed - out, M1IN1, M1IN2);
+    motorDrive(cruising_speed + out, M2IN1, M2IN2);
     
     return line_detected;
 }
@@ -275,22 +277,9 @@ State_type followFunc() {
     float cur_time = micros();
     float prev_time = cur_time;
     while (true) {
-        // if (ultRead()) {
-        //     return STATE_BRAKING;
-        // }
       cur_time = micros();
       if ((cur_time - prev_time)/1.0e6 > 1.0/control_freq) {
-          // if (nodeDistance() <= NODE_BOUNDS) {
-          //     releaseEdge(&connectEdge(path[0],path[1]));
-          //     publishWeightChanges(weightsJson);
-
-          //     dequeue(path, path_length);
-          //     dequeue(direction_queue, direction_length);
-              
-          // }
-          if (!linePosition('l')) {
-//              return STATE_ARRIVED;
-          }
+          linePosition('l');
           prev_time = cur_time;
       }
     }
@@ -351,6 +340,7 @@ void loop() {
     State_type robotState = Follow_state;
  
     while (true) {
+        Serial.println("new State");
         switch (robotState) {
             case Follow_state:
                 robotState = followFunc();
