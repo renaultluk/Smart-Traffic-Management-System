@@ -92,6 +92,7 @@ void setDirectionQueue(char direction_queue[], Node* path[], Node* start) {
                 int currentIndex, nextIndex;
                 Edge* prevEdge = connectEdge(prevNode, currentNode);
                 Edge* nextEdge = connectEdge(currentNode, nextNode);
+                addToJSON(weightsJson, nextEdge->index, OCCUPIED_WEIGHT);
                 for (int j = 0; j < 3; j++) {
                     if (prevEdge->index == edge_map[currentNode->edges[j]].index) {
                         currentIndex = j;
