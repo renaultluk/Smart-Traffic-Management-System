@@ -3,19 +3,15 @@
 Node newBlankNode() {
     Node node;
     node.index = __INT_MAX__;
-    node.x = __INT_MAX__;
-    node.y = __INT_MAX__;
     node.prev = nullptr;
     node.visited = false;
     node.distance = __INT_MAX__;
     return node;
 }
 
-Node newNode(int index, int x, int y) {
+Node newNode(int index) {
     Node node;
     node.index = index;
-    node.x = x;
-    node.y = y;
     node.prev = nullptr;
     node.visited = false;
     node.distance = __INT_MAX__;
@@ -37,5 +33,18 @@ Edge* connectEdge(Node* node1, Node* node2) {
         if (edge_map[i].start->index == node1->index && edge_map[i].end->index == node2->index) {
             return &edge_map[i];
         }
+    }
+}
+
+void initMap() {
+    for (int i = 0; i < NUM_NODES; i++) {
+        node_map[i] = newNode(i);
+    }
+
+    for (int i = 0; i < NUM_EDGES; i++) {
+        edge_map[i].start->edges[edge_map[i].start->degree] = edge_map[i].index;
+        edge_map[i].start->degree++;
+        edge_map[i].end->edges[edge_map[i].end->degree] = edge_map[i].index;
+        edge_map[i].end->degree++;
     }
 }
