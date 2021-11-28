@@ -109,51 +109,10 @@ float ultRead(int pin) {
 
 float obtain_position_fromIR()
 {
-    noLine = 1;
-    finishLine = 1;
-    float tmpPos = 0.0;
-    float finPos = 0.0;
-    float valSum = 0.0;
-    float tmpVal = 0;
-    for (int i=0; i<8; i++) {
-      tmpVal = 1024.0 - analogRead(pinArr[i]);
-      tmpPos += tmpVal * i;
-      if (tmpVal > line_threshold) {
-        noLine = 0;
-      }
-      if (tmpVal < 40) {
-        finishLine = 0;
-      }
-      Serial.print("Sensor ");
-      Serial.print(i);
-      Serial.print(": ");
-      Serial.print(tmpVal);
-      Serial.print("\t");
-      valSum += tmpVal;
-    }
-    if (!noLine) {
-      tmpPos = tmpPos/valSum;
-      tmpPos = tmpPos/8.0*1000.0;
-      tmpPos = map(tmpPos, 110.0, 750.0, 0.0, 1000.0);
-      tmpPos = map(tmpPos, 300.0, 700.0, 0.0, 1000.0);
-
-//      for (int j=0; j<7; j++) {
-//        avArr[j] = avArr[j+1];
-//      }
-//      avArr[7] = tmpPos;
-//    
-//      for (int k=0; k<8; k++) {
-//        finPos += avArr[k];
-//      } 
-//
-//      finPos = finPos/8.0;
-      finPos = tmpPos;
-      Serial.print(finPos);
-      Serial.print("\n");
-
-      return finPos;  //TODO    
-    } else {
-      Serial.println();
+    float IR_reading = analogRead(i);
+    if (IR_reading > line_threshold) {
+    noLine = 0;
+    error = error + i - 4;
     }
     
 }
@@ -238,62 +197,67 @@ void setup() {
 }
  
  
+bool linePosition(char direction) {
+    bool line_detected = false;   
+    bool line_started = false;
+    bool line_ended = false;
+
+    direction = 'l'; // * test
+
+    if (direction == 'l') {
+        for (int i = 2; i < NUM_SENSORS+2; i++) {
+            readIR(line_detected, line_started, line_ended, i);
+        }
+    } else if (direction == 'r') {
+        for (int i = NUM_SENSORS+1; i >= 2; i--) {
+            readIR(line_detected, line_started, line_ended, i);
+        }
+    }
+
+    //TODO: check if the node is passed and update the direction_index
+
+    P_error = Kp * error;
+    
+    integral += error;
+    I_error = Ki * integral;
+    if (fabs(I_error) > INT_UPPER) I_error = I_error > 0 ? INT_UPPER : -INT_UPPER;
+
+    D_error = Kd * (error - last_error);
+    last_error = error;
+
+    float out = P_error + I_error + D_error;
+
+    motorDrive(cruising_speed + out, M1IN1, M1IN2);
+    motorDrive(cruising_speed - out, M2IN1, M2IN2);
+    
+    return line_detected;
+}
 // Implement the line following routine here, exit this function when either:
 // The ultrasonic sensor detects an obstacle, returning Grab_state   OR
 // The finish line is detected, returning Finished_state
-State_type followFunc() {
- 
-    int ult_counter = 0;
-    int no_line_counter = 0;
-    
-    Serial.println("Entering Line Following State!");
- 
+State_type followFunc() {    
+    Serial.println("Entering Line Following State!"); 
+    float cur_time = micros();
+    float prev_time = cur_time;
     while (true) {
- 
-        // Detect if an obstacle is in front of the robot, return Grab_state if so
-        float ult_res = ultRead(ULT_SEN);
-        Serial.println(ult_res);
-        if (ult_counter >= 5) {
-          return Grab_state;
-        }
-        else if (ult_res <= 3 || ult_res >= 1100) {
-          ult_counter++;
-        }
-        // Detect if the robot has reached the finish line, return Finished_state if so
-//        else if (no_line_counter >= 5) {
-//          return Finished_state;
-//        }
-//        else if (noLine) {
-//          no_line_counter++;
-//        }
+        // if (ultRead()) {
+        //     return STATE_BRAKING;
+        // }
+      cur_time = micros();
+      if ((cur_time - prev_time)/1.0e6 > 1.0/CONTROL_FREQ) {
+          // if (nodeDistance() <= NODE_BOUNDS) {
+          //     releaseEdge(&connectEdge(path[0],path[1]));
+          //     publishWeightChanges(weightsJson);
 
-        else if (finishLine) {
-          return Finished_state;
-        }
-        // Perform PID line following
-        else {
-          ult_counter = 0;
-          no_line_counter = 0;
-          //line following  if (dt > 1.0/control_freq)
-          float dt = (micros() - last_time)/ 1.0e6;
-          if (dt > 1.0/control_freq)
-          {
-            float whereAmI = obtain_position_fromIR();
-            float whereDoIWantToGo = 500;                      //TODO
- 
-            PID_controller.update(whereAmI, whereDoIWantToGo);                     //TODO 
- 
-            float delta_control = PID_controller.get_control();
-    
-            float constant_speed = 72;                        //TODO: Default Cruising speed
- 
-            //Differential Drive
-            motorDrive(constant_speed - delta_control, M1IN1, M1IN2); //TODO
-            motorDrive(constant_speed + delta_control, M2IN1, M2IN2); //TODO
-    
+          //     dequeue(path, path_length);
+          //     dequeue(direction_queue, direction_length);
+              
+          // }
+          if (!linePosition(direction_queue[0])) {
+              return STATE_ARRIVED;
           }
-        } 
- 
+          prev_time = cur_time;
+      }
     }
 }
  
