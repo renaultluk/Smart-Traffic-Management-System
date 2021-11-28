@@ -100,7 +100,9 @@ State followFunc() {
         }
         cur_time = micros();
         if ((cur_time - prev_time)/1.0e6 > 1.0/CONTROL_FREQ) {
-            if (nodeDistance(tag, path[0]) <= NODE_BOUNDS) {
+            bool split = false;
+            bool haveLine = linePosition(direction_queue[0], split);
+            if (split) {
                 Edge* tmpEdge = connectEdge(path[0],path[1]);
                 releaseEdge(tmpEdge);
                 publishWeightChanges(weightsJson);
@@ -109,7 +111,7 @@ State followFunc() {
                 dequeue(direction_queue, direction_length);
                 
             }
-            if (!linePosition(direction_queue[0])) {
+            if (!haveLine) {
                 return STATE_ARRIVED;
             }
             prev_time = cur_time;
@@ -151,7 +153,6 @@ void setup() {
     setup_wifi();
     client.setServer(mqttServer, 1883);
     client.setCallback(callback);
-    initUWB();
 }
 
 void loop() {
