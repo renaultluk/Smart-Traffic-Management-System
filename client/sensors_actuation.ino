@@ -27,7 +27,7 @@
 //const float x3 = 0.0;
 //const float y3 = 0.0;
 
-const float Kp = 0.1;
+const float Kp = 10;
 const float Ki = 0;
 const float Kd = 0;
 
@@ -40,6 +40,7 @@ float D_error;
 float integral = 0;
 
 float cruising_speed = 100;
+int avArr[8];
 
 float distance;
 uint32_t pulseWidthUs;

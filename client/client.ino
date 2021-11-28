@@ -87,7 +87,7 @@ void reset() {
 }
 
 State planFunc() {
-    planPath(*start, *target, path, direction_queue);
+    planPath(start, target, path, direction_queue);
     return STATE_FOLLOWING;
 }
 

@@ -32,9 +32,9 @@ Node* outgoing(Node* node, Edge edge) {
 void solve(Node* start) {
     Node* queue[NUM_NODES] = {};
     int queue_size = 0;
-    enqueue(queue, &start, queue_size);
-    start.visited = true;
-    start.distance = 0;
+    enqueue(queue, start, queue_size);
+    start->visited = true;
+    start->distance = 0;
 
     while (queue_size > 0) {
         Node* current = queue[0];
@@ -71,7 +71,7 @@ void reconstructPath(Node* target, Node* path[]) {
     }
 }
 
-void setDirectionQueue(char direction_queue[], Node* path[], Node start) {
+void setDirectionQueue(char direction_queue[], Node* path[], Node* start) {
     int path_length = sizeof(path)/sizeof(*path);
     int direction_queue_size = 0;
     for (int i = 0; i < path_length-2; i++) {
