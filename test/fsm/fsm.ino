@@ -21,6 +21,7 @@ const float Kd = 0;
 
 int error = 0;
 int last_error = 0;
+int avArr[8] = {0,0,0,0,0,0,0,0};
 
 float P_error;
 float I_error;
@@ -237,6 +238,16 @@ bool linePosition(char direction) {
         }
     }
     Serial.println();
+
+    int tmpCount = 0;
+    for (int i = 1; i < 8; i++) {
+      tmpCount += avArr[i];
+      avArr[i-1] = avArr[i];
+     }
+     avArr[7] = error;
+     tmpCount += error;
+
+     error = tmpCount/8;
 
     //TODO: check if the node is passed and update the direction_index
 
