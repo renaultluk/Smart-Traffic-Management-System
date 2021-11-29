@@ -150,6 +150,8 @@ State arrivedFunc() {
 
 void setup() {
     Serial.begin(115200);
+    initMap();
+    createNewJSON();
     setup_wifi();
     client.setServer(mqttServer, 1883);
     client.setCallback(callback);

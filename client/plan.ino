@@ -73,7 +73,7 @@ void reconstructPath(Node* target, Node* path[]) {
 }
 
 void setDirectionQueue(char direction_queue[], Node* path[], Node* start) {
-    int path_length = *(path + 1) - path;
+    int path_length = (int)(sizeof(*path)/sizeof(**path));
     int direction_queue_size = 0;
     for (int i = 0; i < path_length-2; i++) {
         Node* prevNode = path[i];

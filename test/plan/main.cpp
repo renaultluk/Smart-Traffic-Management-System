@@ -131,7 +131,7 @@ void setDirectionQueue(char direction_queue[], Node* path[], Node* start) {
     for (int i = 0; i < NUM_NODES; i++) {   // ** fix: reset all directions for each starting point
         direction_queue[i] = '\0';
     }
-    int path_length = *(&path + 1) - path; // ** fix: use pointer arithmetic for path_length
+    int path_length = (int)(sizeof(path)/sizeof(*path)); // ** fix: use pointer arithmetic for path_length
     cout << "path_length: " << path_length << endl;
     int direction_queue_size = 0;
     for (int i = 0; i < path_length-2; i++) {

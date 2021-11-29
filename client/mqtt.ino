@@ -4,22 +4,10 @@
 #include "credentials.h"
 #include "graphStructs.h"
 
+const int capacity = JSON_ARRAY_SIZE(NUM_EDGES) + NUM_EDGES*JSON_OBJECT_SIZE(2);
 
-void splitCommand(String payload, String commandList[]) {
-  int str_length = payload.length();
-  int list_index = 0;
-  
-  for (int i = 0; i < str_length; i++) {
-    if (payload[i] == ' ') {
-      list_index++;
-    } else {
-      commandList[list_index] += payload[i];
-    }
-  }
-}
-
-void createNewJSON(String topic) {
-  StaticJsonDocument<200> doc;
+void createNewJSON() {
+  StaticJsonDocument<capacity> doc;
   weightsJson = doc.to<JsonArray>();
 }
 
@@ -36,11 +24,11 @@ void publishWeightChanges(JsonArray& weightChanges) {
     char msg[arrSize];
     weightStr.toCharArray(msg, arrSize);
     client.publish(weightTopic, msg);
-    createNewJSON(weightTopic);
+    createNewJSON();
 }
 
 void parseWeightJson(String payload) {
-    StaticJsonDocument<200> doc;
+    StaticJsonDocument<capacity> doc;
     DeserializationError error = deserializeJson(doc, payload);
 
     if (error) {
