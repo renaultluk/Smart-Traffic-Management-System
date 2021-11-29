@@ -62,9 +62,11 @@ void reconstructPath(Node* target, Node* path[]) {
     Node* tmpPath[NUM_NODES];
     tmpPath[0] = target;
     int i = 1;
-    while (target->prev != nullptr) {
-        tmpPath[i] = target->prev;
-        target = target->prev;
+    Node* current = target;
+    while (current->prev != nullptr) {
+        addToJSON(weightsJson, connectEdge(current, current->prev)->index, OCCUPIED_WEIGHT);
+        tmpPath[i] = current->prev;
+        current = current->prev;
         i++;
     }
     for (int j = 0; j < i; j++) {
@@ -93,7 +95,6 @@ void setDirectionQueue(char direction_queue[], Node* path[], Node* start) {
                 int currentIndex, nextIndex;
                 Edge* prevEdge = connectEdge(prevNode, currentNode);
                 Edge* nextEdge = connectEdge(currentNode, nextNode);
-                addToJSON(weightsJson, nextEdge->index, OCCUPIED_WEIGHT);
                 for (int j = 0; j < 3; j++) {
                     if (prevEdge->index == edge_map[currentNode->edges[j]].index) {
                         currentIndex = j;
