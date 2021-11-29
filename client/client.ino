@@ -22,10 +22,8 @@ typedef enum {
 
 State prevState = STATE_INIT;
 
-enum { MANUAL, AUTO } destMode;
-
-Node* start;
-Node* target;
+Node* start = destinations[0];
+Node* target = start;
 Node* path[NUM_NODES];
 char direction_queue[NUM_NODES];
 int path_length = 0;
@@ -40,25 +38,25 @@ char msg[50];
 int value = 0;
 int ledState = 0;
 
-void serialInputHandler() {
-    char command = Serial.read();
-    switch (command) {
-        case 'd':
-            if (Serial.parseInt() == VEHICLE_ID) {
-                target->index = Serial.parseInt();
-            }
-            break;
+// void serialInputHandler() {
+//     char command = Serial.read();
+//     switch (command) {
+//         case 'd':
+//             if (Serial.parseInt() == VEHICLE_ID) {
+//                 target->index = Serial.parseInt();
+//             }
+//             break;
     
-        case 't':
-            if (Serial.parseInt() == VEHICLE_ID) {
-                destMode = destMode == AUTO ? MANUAL : AUTO;
-            }
-            break;
+//         case 't':
+//             if (Serial.parseInt() == VEHICLE_ID) {
+//                 destMode = destMode == AUTO ? MANUAL : AUTO;
+//             }
+//             break;
         
-        default:
-            break;
-    }
-}
+//         default:
+//             break;
+//     }
+// }
 
 void setup_wifi() {
   delay(10);
@@ -143,28 +141,16 @@ State brakeFunc() {
 
 State arrivedFunc() {
     reset();
-    switch (destMode)
-    {
-    case MANUAL:
-        brake();
-        while (!Serial.available()) {
-            delay(100);
-        };
-        serialInputHandler();
-        return STATE_PLANNING;
-        break;
-    
-    case AUTO:
-        if (!client.connected()) {
-            prevState = STATE_ARRIVED;
-            return STATE_DISCONNECTED;
-        }
-        target = destinations[random(NUM_DEST)];
-        break;
-
-    default:
-        break;
+    if (!client.connected()) {
+        prevState = STATE_ARRIVED;
+        return STATE_DISCONNECTED;
     }
+    int new_target_index = target->index;
+    while (new_target_index == target->index) {
+        new_target_index = random(NUM_DEST);
+    }
+    target = destinations[new_target_index];
+    return STATE_PLANNING;
 }
 
 State disconnectedFunc() {
