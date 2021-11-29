@@ -8,12 +8,12 @@
 int dest_length = 0;
 
 // *** Utils *** //
-Node dequeue(Node queue[], int &queue_size);
+void dequeue(Node* queue[], int &queue_size);
 
 char dequeue(char queue[], int &queue_size);
 
 // *** Planning *** //
-void planPath(Node start, Node target, Node path[], char direction_queue[]);
+void planPath(Node* start, Node* target, Node* path[], char direction_queue[]);
 
 void releaseEdge(Edge *edge);
 
@@ -24,7 +24,7 @@ void brake();
 
 bool ultRead();
 
-bool linePosition(char direction);
+bool linePosition(char direction, bool &split);
 
 
 // *** MQTT *** //
@@ -41,5 +41,7 @@ void createNewJSON();
 void addToJSON(JsonObject& root, const char key, const char value);
 
 void publishWeightChanges(JsonArray& weightChanges);
+
+void callback(char* topic, byte* payload, unsigned int length);
 
 #endif

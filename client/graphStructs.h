@@ -27,7 +27,7 @@ Node newNode(int index);
 
 Edge newEdge(int index, Node* start, Node* end, int weight);
 
-Edge connectEdge(Node node1, Node node2);
+Edge* connectEdge(Node* node1, Node* node2);
 
 void initMap();
 

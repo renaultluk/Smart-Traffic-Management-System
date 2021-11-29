@@ -171,9 +171,9 @@ void loop() {
     State vehicleState = arrivedFunc();
 
     while (true) {
-        if (Serial.available()) {
-            serialInputHandler();
-        }
+//        if (Serial.available()) {
+//            serialInputHandler();
+//        }
 
         switch (vehicleState)
         {
@@ -196,7 +196,6 @@ void loop() {
         case STATE_DISCONNECTED:
             vehicleState = disconnectedFunc();
             break;
-        }
 
         default:
             break;
