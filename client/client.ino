@@ -90,16 +90,19 @@ void reset() {
 }
 
 State planFunc() {
+    Serial.println("Entering STATE_PLANNING");
     if (!client.connected()) {
         prevState = STATE_PLANNING;
         return STATE_DISCONNECTED;
     }
     planPath(start, target, path, direction_queue);
+    Serial.println("Finished planning");
     publishWeightChanges(weightsJson);
     return STATE_FOLLOWING;
 }
 
 State followFunc() {
+    Serial.println("Entering STATE_FOLLOWING");
     float cur_time = micros();
     float prev_time = cur_time;
     while (true) {
@@ -132,6 +135,7 @@ State followFunc() {
 }
 
 State brakeFunc() {
+    Serial.println("Entering STATE_BRAKING");
     while (ultRead()) {
         if (!client.connected()) {
             prevState = STATE_BRAKING;
@@ -143,6 +147,7 @@ State brakeFunc() {
 }
 
 State arrivedFunc() {
+    Serial.println("Entering STATE_ARRIVED");
     reset();
     if (!client.connected()) {
         prevState = STATE_ARRIVED;
