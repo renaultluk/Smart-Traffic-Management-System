@@ -1,3 +1,4 @@
+#include "sensor_obj.h"
 #include <Servo.h>
 
 //new
@@ -68,6 +69,9 @@ class PID
   }
 };
 
+bool within(float val, float lower, float upper) {
+  return (val >= lower && val <= upper);
+}
 
 void motorDrive(int power, int in1, int in2) {
   if (power >= 0) {
@@ -125,15 +129,18 @@ float readIR(bool &line_detected, bool &line_started, bool &line_ended, int i) {
     Serial.print(i);
     Serial.print(": ");
     Serial.print(IR_reading);
-    if (IR_reading < line_threshold) {
+    if (within(IR_reading, line_sensors[i].line_lower, line_sensors[i].line_upper)) {
         line_detected = true;
         if (!line_ended) {
             line_started = true;
+            error = error + i - 4;
         } else {
             if (line_started) {
                 line_ended = true;
             }
         }
+    } else if (within(IR_reading, line_sensors[i].led_lower, line_sensors[i].led_upper)) {
+        Serial.print("LED");
     }
     return IR_reading;
 }
@@ -233,37 +240,39 @@ bool linePosition(char direction) {
     if (direction == 'l') {
         for (int i = 0; i < 8; i++) {
             tmpVal = readIR(line_detected, line_started, line_ended, i);
-            tmpPos += tmpVal * i;
-            valSum += tmpVal;
+            // tmpPos += tmpVal * i;
+            // valSum += tmpVal;
         }
     } else if (direction == 'r') {
         for (int i = 7; i >= 0; i--) {
             tmpVal = readIR(line_detected, line_started, line_ended, i);
-            tmpPos += tmpVal * i;
-            valSum += tmpVal;
+            // tmpPos += tmpVal * i;
+            // valSum += tmpVal;
         }
     }
-    Serial.println();
+     Serial.println();
 
-    tmpPos = tmpPos/valSum;
+    // tmpPos = tmpPos/valSum;
 
     int tmpCount = 0;
     for (int i = 1; i < 8; i++) {
       tmpCount += avArr[i];
       avArr[i-1] = avArr[i];
      }
-     avArr[7] = tmpPos;
-     tmpCount += tmpPos;
+     avArr[7] = error;
+     tmpCount += error;
 
-     tmpPos = tmpCount/8;
-     tmpPos -= 4;
+     error = tmpCount/8.0;
+    //  Serial.print("tmpPos: ");
+    //  Serial.print(tmpPos);
+     error += 2;
 //     avArr[7] = error;
      Serial.print("error: ");
-     Serial.print(tmpPos);
+     Serial.print(error);
 
     //TODO: check if the node is passed and update the direction_index
 
-    P_error = Kp * tmpPos;
+    P_error = Kp * error;
 //    
 //    integral += error;
 //    I_error = Ki * integral;

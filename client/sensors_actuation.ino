@@ -1,3 +1,4 @@
+#include "sensor_obj.h"
 #include "client.h"
 
 #define LINE_THRESHOLD    5
@@ -32,6 +33,10 @@ int avArr[8];
 float distance;
 uint32_t pulseWidthUs;
 int16_t  dist, temp;
+
+bool within(float val, float lower, float upper) {
+  return (val >= lower && val <= upper);
+}
 
 void motorDrive(int power, int in1, int in2) {
   if (power >= 0) {
