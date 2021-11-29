@@ -10,7 +10,7 @@
 
 typedef enum {
     STATE_INIT,
-    STATE_CONNECTING,
+//    STATE_CONNECTING,
     // STATE_CONNECTED,
     STATE_DISCONNECTED,
     // STATE_ERROR,
