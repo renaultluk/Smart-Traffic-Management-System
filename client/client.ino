@@ -88,6 +88,7 @@ void reset() {
 
 State planFunc() {
     planPath(start, target, path, direction_queue);
+    publishWeightChanges(weightsJson);
     return STATE_FOLLOWING;
 }
 
