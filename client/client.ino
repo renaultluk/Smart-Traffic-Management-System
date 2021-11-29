@@ -82,7 +82,10 @@ void reset() {
     for (int i = 0; i < NUM_NODES; i++) {
         path[i] = nullptr;
         direction_queue[i] = '\0';
-        destinations[i] = nullptr;
+        
+        node_map[i].visited = false;
+        node_map[i].distance = __INT_MAX__;
+        node_map[i].prev = nullptr;
     }
 }
 
