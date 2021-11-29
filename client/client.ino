@@ -12,13 +12,15 @@ typedef enum {
     STATE_INIT,
     STATE_CONNECTING,
     // STATE_CONNECTED,
-    // STATE_DISCONNECTED,
+    STATE_DISCONNECTED,
     // STATE_ERROR,
     STATE_PLANNING,
     STATE_FOLLOWING,
     STATE_BRAKING,
     STATE_ARRIVED,
 } State;
+
+State prevState = STATE_INIT;
 
 enum { MANUAL, AUTO } destMode;
 
@@ -87,6 +89,10 @@ void reset() {
 }
 
 State planFunc() {
+    if (!client.connected()) {
+        prevState = STATE_PLANNING;
+        return STATE_DISCONNECTED;
+    }
     planPath(start, target, path, direction_queue);
     publishWeightChanges(weightsJson);
     return STATE_FOLLOWING;
@@ -96,6 +102,10 @@ State followFunc() {
     float cur_time = micros();
     float prev_time = cur_time;
     while (true) {
+        if (!client.connected()) {
+            prevState = STATE_FOLLOWING;
+            return STATE_DISCONNECTED;
+        }
         if (ultRead()) {
             return STATE_BRAKING;
         }
@@ -122,6 +132,10 @@ State followFunc() {
 
 State brakeFunc() {
     while (ultRead()) {
+        if (!client.connected()) {
+            prevState = STATE_BRAKING;
+            return STATE_DISCONNECTED;
+        }
         brake();
     }
     return STATE_FOLLOWING;
@@ -141,12 +155,21 @@ State arrivedFunc() {
         break;
     
     case AUTO:
+        if (!client.connected()) {
+            prevState = STATE_ARRIVED;
+            return STATE_DISCONNECTED;
+        }
         target = destinations[random(NUM_DEST)];
         break;
 
     default:
         break;
     }
+}
+
+State disconnectedFunc() {
+    reconnect();
+    return prevState;
 }
 
 void setup() {
@@ -183,6 +206,11 @@ void loop() {
         case STATE_ARRIVED:
             vehicleState = arrivedFunc();
             break;
+
+        case STATE_DISCONNECTED:
+            vehicleState = disconnectedFunc();
+            break;
+        }
 
         default:
             break;

@@ -34,6 +34,8 @@ void setup_lampposts();
 
 void setup_wifi();
 
+void reconnect();
+
 void createNewJSON();
 
 void addToJSON(JsonObject& root, const char key, const char value);
