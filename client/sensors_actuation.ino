@@ -70,8 +70,8 @@ bool ultRead() {
 }
 
 void readIR(bool &line_detected, bool &line_started, bool &line_ended, bool &split, int i) {
-    float IR_reading = analogRead(i);
-    if (IR_reading > LINE_THRESHOLD) {
+    float IR_reading = 1024.0 - analogRead(i);
+    if (within(IR_reading, line_sensors[i].line_lower, line_sensors[i].line_upper)) {
         line_detected = true;
         if (!line_ended) {
             line_started = true;
@@ -81,7 +81,7 @@ void readIR(bool &line_detected, bool &line_started, bool &line_ended, bool &spl
                 line_ended = true;
             }
         }
-    } else if (IR_reading > LED_THRESHOLD) {
+    } else if (within(IR_reading, line_sensors[i].led_lower, line_sensors[i].led_upper)) {
         split = true;
     }
 }
@@ -90,6 +90,8 @@ bool linePosition(char direction, bool &split) {
     bool line_detected = false;   
     bool line_started = false;
     bool line_ended = false;
+
+    error = 0;
 
     if (direction == 'l') {
         for (int i = 0; i < NUM_SENSORS; i++) {
@@ -109,8 +111,8 @@ bool linePosition(char direction, bool &split) {
      avArr[7] = error;
      tmpCount += error;
 
-     error = tmpCount/8;
-     error -= 2;
+     error = tmpCount/8.0;
+     error += 2;
 
     //TODO: check if the node is passed and update the direction_index
 
