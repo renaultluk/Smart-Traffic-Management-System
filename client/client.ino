@@ -96,7 +96,7 @@ State planFunc() {
     prevState = STATE_PLANNING;
     return STATE_DISCONNECTED;
   }
-  planPath(&node_map[19], target, path, direction_queue);
+  planPath(&node_map[0], &node_map[17], path, direction_queue);
 //  publishWeightChanges(weightsJson);      // JSON pending
   return STATE_FOLLOWING;
 }

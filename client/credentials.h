@@ -1,8 +1,8 @@
 #ifndef CREDENTIALS_H
 #define CREDENTIALS_H
 
-const char* ssid = "146snk P30 Pro";
-const char* password = "20020915";
+const char* ssid = "Galaxy Note10 5G708e";
+const char* password = "bqie7342";
 
 const char* mqttServer = "broker.emqx.io";
 const char* mqttUsername = "";
