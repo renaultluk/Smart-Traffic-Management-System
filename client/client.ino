@@ -4,7 +4,7 @@
 #include "credentials.h"
 #include "client.h"
 
-#define CONTROL_FREQ    30
+#define CONTROL_FREQ    45
 
 #define NODE_BOUNDS      10
 
@@ -22,7 +22,7 @@ typedef enum {
 
 State prevState = STATE_INIT;
 
-Node* start = &node_map[0];
+Node* start = &node_map[19];
 Node* target = start;
 Node* path[NUM_NODES];
 char direction_queue[NUM_NODES];
@@ -96,7 +96,7 @@ State planFunc() {
     prevState = STATE_PLANNING;
     return STATE_DISCONNECTED;
   }
-  planPath(&node_map[0], target, path, direction_queue);
+  planPath(&node_map[19], target, path, direction_queue);
 //  publishWeightChanges(weightsJson);      // JSON pending
   return STATE_FOLLOWING;
 }
@@ -120,8 +120,8 @@ State followFunc() {
       Serial.println("Finished line reading");
       if (split) {
         Edge* tmpEdge = connectEdge(path[0], path[1]);
-        releaseEdge(tmpEdge);
-        publishWeightChanges(weightsJson);
+//        releaseEdge(tmpEdge);
+//        publishWeightChanges(weightsJson);
 
         Serial.println("split detected");
         dequeue(path, path_length);
@@ -172,9 +172,9 @@ State disconnectedFunc() {
 void setup() {
   Serial.begin(115200);
   randomSeed(analogRead(0));
-  while (!Serial);
+//  while (!Serial);
   initMap();
-  start = &node_map[0];
+  start = &node_map[19];
   createNewJSON();
   setup_wifi();
   client.setServer(mqttServer, 1883);

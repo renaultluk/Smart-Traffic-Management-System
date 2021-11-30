@@ -7,13 +7,17 @@
 const int capacity = JSON_ARRAY_SIZE(NUM_EDGES) + NUM_EDGES*JSON_OBJECT_SIZE(2);
 
 void createNewJSON() {
-  Serial.println("createNewJSON");
+  Serial.print("createNewJSON \t capacity= ");
+  Serial.println(capacity);
   DynamicJsonDocument doc(capacity);
   weightsJson = doc.to<JsonArray>();
 }
 
 void addToJSON(JsonArray& root, int key, int value) {
-    Serial.println("addToJSON");
+    Serial.print("addToJSON \t key: ");
+    Serial.print(key);
+    Serial.print("\t value: ");
+    Serial.println(value);
     JsonObject record = root.createNestedObject();
     record["key"] = key;
     record["value"] = value;

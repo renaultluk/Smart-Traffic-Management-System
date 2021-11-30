@@ -66,7 +66,7 @@ int reconstructPath(Node* target, Node* path[]) {
     int i = 1;
     Node* current = target;
     while (current->prev != nullptr) {
-        addToJSON(weightsJson, connectEdge(current, current->prev)->index, OCCUPIED_WEIGHT);      // JSON pending
+//        addToJSON(weightsJson, connectEdge(current, current->prev)->index, OCCUPIED_WEIGHT);      // JSON pending
         tmpPath[i] = current->prev;
         current = current->prev;
         i++;
@@ -84,6 +84,8 @@ void setDirectionQueue(char direction_queue[], Node* path[], Node* start, int pa
     Serial.println(path_length);
     int direction_queue_size = 0;
     for (int i = 0; i < path_length-2; i++) {
+        Serial.print("Entering node ");
+        Serial.println(i);
         Node* prevNode = path[i];
         Node* currentNode = path[i+1];
         Node* nextNode = path[i+2];
@@ -98,6 +100,7 @@ void setDirectionQueue(char direction_queue[], Node* path[], Node* start, int pa
                 direction_queue_size++;
                 break;
             case 3:
+                Serial.println("Entered switch");
                 int currentIndex, nextIndex;
                 Edge* prevEdge = connectEdge(prevNode, currentNode);
                 Edge* nextEdge = connectEdge(currentNode, nextNode);
@@ -112,10 +115,12 @@ void setDirectionQueue(char direction_queue[], Node* path[], Node* start, int pa
                 
                 if (currentIndex == (nextIndex+1)%3) {
                     direction_queue[direction_queue_size] = 'l';
+                    Serial.println("l");
                     direction_queue_size++;
                     break;
                 } else if (nextIndex == (currentIndex+1)%3) {
                     direction_queue[direction_queue_size] = 'r';
+                    Serial.println("r");
                     direction_queue_size++;
                     break;
                 }

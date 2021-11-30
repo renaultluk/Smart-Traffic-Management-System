@@ -28,7 +28,7 @@ float P_error;
 float I_error;
 float D_error;
 float integral = 0;
-float cruising_speed = 80;
+float cruising_speed = 55;
 float line_threshold = 5;
 float int_upper = 128;
 
@@ -254,18 +254,18 @@ bool linePosition(char direction) {
 
     // tmpPos = tmpPos/valSum;
 
-    int tmpCount = 0;
-    for (int i = 1; i < 8; i++) {
-      tmpCount += avArr[i];
-      avArr[i-1] = avArr[i];
-     }
-     avArr[7] = error;
-     tmpCount += error;
-
-     error = tmpCount/8.0;
+//    int tmpCount = 0;
+//    for (int i = 1; i < 8; i++) {
+//      tmpCount += avArr[i];
+//      avArr[i-1] = avArr[i];
+//     }
+//     avArr[7] = error;
+//     tmpCount += error;
+//
+//     error = tmpCount/8.0;
     //  Serial.print("tmpPos: ");
     //  Serial.print(tmpPos);
-     error += 2;
+//     error += 2;
 //     avArr[7] = error;
      Serial.print("error: ");
      Serial.print(error);

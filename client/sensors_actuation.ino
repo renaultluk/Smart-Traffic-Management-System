@@ -15,7 +15,7 @@
 #define ULT_SEN_THRESHOLD 5
 #define    VELOCITY_TEMP(temp)       ( ( 331.5 + 0.6 * (float)( temp ) ) * 100 / 1000000.0 )
 
-const float Kp = 5;
+const float Kp = 10;
 const float Ki = 0;
 const float Kd = 0;
 
@@ -27,7 +27,7 @@ float I_error;
 float D_error;
 float integral = 0;
 
-float cruising_speed = 55;
+float cruising_speed = 50;
 int avArr[8];
 
 float distance;
