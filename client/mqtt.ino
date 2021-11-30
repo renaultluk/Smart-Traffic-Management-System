@@ -7,17 +7,20 @@
 const int capacity = JSON_ARRAY_SIZE(NUM_EDGES) + NUM_EDGES*JSON_OBJECT_SIZE(2);
 
 void createNewJSON() {
-  StaticJsonDocument<capacity> doc;
+  Serial.println("createNewJSON");
+  DynamicJsonDocument doc(capacity);
   weightsJson = doc.to<JsonArray>();
 }
 
 void addToJSON(JsonArray& root, int key, int value) {
+    Serial.println("addToJSON");
     JsonObject record = root.createNestedObject();
     record["key"] = key;
     record["value"] = value;
 }
 
 void publishWeightChanges(JsonArray& weightChanges) {
+    Serial.println("publishWeightChanges");
     String weightStr;
     serializeJson(weightChanges, weightStr);
     byte arrSize = weightStr.length() + 1;

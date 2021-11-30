@@ -48,4 +48,7 @@ void initMap() {
         edge_map[i].end->edges[edge_map[i].end->degree] = edge_map[i].index;
         edge_map[i].end->degree++;
     }
+    destinations[0] = &node_map[0];
+    destinations[1] = &node_map[18];
+    destinations[2] = &node_map[19];
 }

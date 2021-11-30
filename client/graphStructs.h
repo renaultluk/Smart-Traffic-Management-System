@@ -32,7 +32,7 @@ Edge* connectEdge(Node* node1, Node* node2);
 void initMap();
 
 Node node_map[NUM_NODES] = {};
-Node* destinations[NUM_DEST] = {};
+Node* destinations[NUM_DEST] = {&node_map[0], &node_map[18], &node_map[19]};
 Edge edge_map[NUM_EDGES] = {
     newEdge(0, &node_map[0], &node_map[1], 1),
     newEdge(1, &node_map[1], &node_map[4], 2),
@@ -59,7 +59,8 @@ Edge edge_map[NUM_EDGES] = {
     newEdge(22, &node_map[13], &node_map[8], 3),
     newEdge(23, &node_map[8], &node_map[9], 4),
     newEdge(24, &node_map[8], &node_map[6], 3),
-    newEdge(25, &node_map[6], &node_map[7], 3)
+    newEdge(25, &node_map[6], &node_map[3], 5),
+    newEdge(26, &node_map[6], &node_map[7], 3)
 };
 
 #endif

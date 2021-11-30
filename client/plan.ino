@@ -52,30 +52,36 @@ void solve(Node* start) {
 
             if (!nextNode->visited) {
                 enqueue(queue, nextNode, queue_size);
+                nextNode = nullptr;
             }
         }
         dequeue(queue, queue_size);
-    } 
+        current = nullptr;
+    }
 }
 
-void reconstructPath(Node* target, Node* path[]) {
+int reconstructPath(Node* target, Node* path[]) {
     Node* tmpPath[NUM_NODES];
     tmpPath[0] = target;
     int i = 1;
     Node* current = target;
     while (current->prev != nullptr) {
-        addToJSON(weightsJson, connectEdge(current, current->prev)->index, OCCUPIED_WEIGHT);
+        addToJSON(weightsJson, connectEdge(current, current->prev)->index, OCCUPIED_WEIGHT);      // JSON pending
         tmpPath[i] = current->prev;
         current = current->prev;
         i++;
     }
     for (int j = 0; j < i; j++) {
         path[j] = tmpPath[i - j - 1];
+        Serial.print(path[j]->index);
+        Serial.print("->");
     }
+    return i;
 }
 
-void setDirectionQueue(char direction_queue[], Node* path[], Node* start) {
-    int path_length = (int)(sizeof(*path)/sizeof(**path));
+void setDirectionQueue(char direction_queue[], Node* path[], Node* start, int path_length) {
+    Serial.print("path_length: ");
+    Serial.println(path_length);
     int direction_queue_size = 0;
     for (int i = 0; i < path_length-2; i++) {
         Node* prevNode = path[i];
@@ -114,13 +120,21 @@ void setDirectionQueue(char direction_queue[], Node* path[], Node* start) {
                     break;
                 }
         }
+        Serial.print("Direction set for node ");
+        Serial.println(i);
     }
+    for (int i = 0; i < direction_queue_size; i++) {
+      Serial.print(direction_queue[i]);
+      Serial.print("->");
+    }
+    Serial.println();
 }
 
 void planPath(Node* start, Node* target, Node* path[], char direction_queue[]) {
     solve(start);
-    reconstructPath(target, path);
-    setDirectionQueue(direction_queue, path, start);
+    int path_length = reconstructPath(target, path);
+    setDirectionQueue(direction_queue, path, start, path_length);
+    Serial.println("planPath finished");
 }
 
 void releaseEdge(Edge *edge) {

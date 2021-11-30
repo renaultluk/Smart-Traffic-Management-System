@@ -1,33 +1,34 @@
-#include <WiFiNINA.h> 
+#include <WiFiNINA.h>
 #include <PubSubClient.h>
 #include "graphStructs.h"
 #include "credentials.h"
 #include "client.h"
 
-#define CONTROL_FREQ    20
+#define CONTROL_FREQ    30
 
 #define NODE_BOUNDS      10
 
 typedef enum {
-    STATE_INIT,
-//    STATE_CONNECTING,
-    // STATE_CONNECTED,
-    STATE_DISCONNECTED,
-    // STATE_ERROR,
-    STATE_PLANNING,
-    STATE_FOLLOWING,
-    STATE_BRAKING,
-    STATE_ARRIVED,
+  STATE_INIT,
+  //    STATE_CONNECTING,
+  // STATE_CONNECTED,
+  STATE_DISCONNECTED,
+  // STATE_ERROR,
+  STATE_PLANNING,
+  STATE_FOLLOWING,
+  STATE_BRAKING,
+  STATE_ARRIVED,
 } State;
 
 State prevState = STATE_INIT;
 
-Node* start = destinations[0];
+Node* start = &node_map[0];
 Node* target = start;
 Node* path[NUM_NODES];
 char direction_queue[NUM_NODES];
 int path_length = 0;
 int direction_length = 0;
+int target_index = 0;
 // Node* destinations[NUM_NODES];
 // int dest_length = 0;
 
@@ -46,13 +47,13 @@ int ledState = 0;
 //                 target->index = Serial.parseInt();
 //             }
 //             break;
-    
+
 //         case 't':
 //             if (Serial.parseInt() == VEHICLE_ID) {
 //                 destMode = destMode == AUTO ? MANUAL : AUTO;
 //             }
 //             break;
-        
+
 //         default:
 //             break;
 //     }
@@ -64,7 +65,7 @@ void setup_wifi() {
   Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) 
+  while (WiFi.status() != WL_CONNECTED)
   {
     delay(500);
     Serial.print(".");
@@ -77,136 +78,141 @@ void setup_wifi() {
 }
 
 void reset() {
-    start = target;
-    target = nullptr;
-    for (int i = 0; i < NUM_NODES; i++) {
-        path[i] = nullptr;
-        direction_queue[i] = '\0';
-        
-        node_map[i].visited = false;
-        node_map[i].distance = __INT_MAX__;
-        node_map[i].prev = nullptr;
-    }
+  start = target;
+  target = nullptr;
+  for (int i = 0; i < NUM_NODES; i++) {
+    path[i] = nullptr;
+    direction_queue[i] = '\0';
+
+    node_map[i].visited = false;
+    node_map[i].distance = __INT_MAX__;
+    node_map[i].prev = nullptr;
+  }
 }
 
 State planFunc() {
-    Serial.println("Entering STATE_PLANNING");
-    if (!client.connected()) {
-        prevState = STATE_PLANNING;
-        return STATE_DISCONNECTED;
-    }
-    planPath(start, target, path, direction_queue);
-    Serial.println("Finished planning");
-    publishWeightChanges(weightsJson);
-    return STATE_FOLLOWING;
+  Serial.println("Entering STATE_PLANNING");
+  if (!client.connected()) {
+    prevState = STATE_PLANNING;
+    return STATE_DISCONNECTED;
+  }
+  planPath(&node_map[0], target, path, direction_queue);
+//  publishWeightChanges(weightsJson);      // JSON pending
+  return STATE_FOLLOWING;
 }
 
 State followFunc() {
-    Serial.println("Entering STATE_FOLLOWING");
-    float cur_time = micros();
-    float prev_time = cur_time;
-    while (true) {
-        if (!client.connected()) {
-            prevState = STATE_FOLLOWING;
-            return STATE_DISCONNECTED;
-        }
-        if (ultRead()) {
-            return STATE_BRAKING;
-        }
-        cur_time = micros();
-        if ((cur_time - prev_time)/1.0e6 > 1.0/CONTROL_FREQ) {
-            bool split = false;
-            bool haveLine = linePosition(direction_queue[0], split);
-            if (split) {
-                Edge* tmpEdge = connectEdge(path[0],path[1]);
-                releaseEdge(tmpEdge);
-                publishWeightChanges(weightsJson);
-
-                dequeue(path, path_length);
-                dequeue(direction_queue, direction_length);
-                
-            }
-            if (!haveLine) {
-                return STATE_ARRIVED;
-            }
-            prev_time = cur_time;
-        }
+  Serial.println("Entering STATE_FOLLOWING");
+  float cur_time = micros();
+  float prev_time = cur_time;
+  while (true) {
+    if (!client.connected()) {
+      prevState = STATE_FOLLOWING;
+      return STATE_DISCONNECTED;
     }
+    if (ultRead()) {
+//      return STATE_BRAKING;
+    }
+    cur_time = micros();
+    if ((cur_time - prev_time) / 1.0e6 > 1.0 / CONTROL_FREQ) {
+      bool split = false;
+      bool haveLine = linePosition(direction_queue[0], split);
+      Serial.println("Finished line reading");
+      if (split) {
+        Edge* tmpEdge = connectEdge(path[0], path[1]);
+        releaseEdge(tmpEdge);
+        publishWeightChanges(weightsJson);
+
+        Serial.println("split detected");
+        dequeue(path, path_length);
+        dequeue(direction_queue, direction_length);
+        split = false;
+      }
+      if (!haveLine) {
+//        return STATE_ARRIVED;
+      }
+      prev_time = cur_time;
+    }
+  }
 }
 
 State brakeFunc() {
-    Serial.println("Entering STATE_BRAKING");
-    while (ultRead()) {
-        if (!client.connected()) {
-            prevState = STATE_BRAKING;
-            return STATE_DISCONNECTED;
-        }
-        brake();
+  Serial.println("Entering STATE_BRAKING");
+  while (ultRead()) {
+    if (!client.connected()) {
+      prevState = STATE_BRAKING;
+      return STATE_DISCONNECTED;
     }
-    return STATE_FOLLOWING;
+    brake();
+  }
+  return STATE_FOLLOWING;
 }
 
 State arrivedFunc() {
-    Serial.println("Entering STATE_ARRIVED");
-    reset();
-    if (!client.connected()) {
-        prevState = STATE_ARRIVED;
-        return STATE_DISCONNECTED;
-    }
-    int new_target_index = target->index;
-    while (new_target_index == target->index) {
-        new_target_index = random(NUM_DEST);
-    }
-    target = destinations[new_target_index];
-    return STATE_PLANNING;
+  Serial.println("Entering STATE_ARRIVED");
+  reset();
+  if (!client.connected()) {
+    prevState = STATE_ARRIVED;
+    return STATE_DISCONNECTED;
+  }
+  int new_target_index = target_index;
+  while (new_target_index == target_index) {
+    new_target_index = random(NUM_DEST);
+  }
+  target = destinations[new_target_index];
+  target_index = new_target_index;
+  return STATE_PLANNING;
 }
 
 State disconnectedFunc() {
-    reconnect();
-    return prevState;
+  reconnect();
+  return prevState;
 }
 
 void setup() {
-    Serial.begin(115200);
-    initMap();
-    createNewJSON();
-    setup_wifi();
-    client.setServer(mqttServer, 1883);
-    client.setCallback(callback);
+  Serial.begin(115200);
+  randomSeed(analogRead(0));
+  while (!Serial);
+  initMap();
+  start = &node_map[0];
+  createNewJSON();
+  setup_wifi();
+  client.setServer(mqttServer, 1883);
+  client.setCallback(callback);
 }
 
 void loop() {
-    State vehicleState = arrivedFunc();
+  State vehicleState = arrivedFunc();
 
-    while (true) {
-//        if (Serial.available()) {
-//            serialInputHandler();
-//        }
+  while (true) {
+    //        if (Serial.available()) {
+    //            serialInputHandler();
+    //        }
 
-        switch (vehicleState)
-        {
-        case STATE_PLANNING:
-            vehicleState = planFunc();
-            break;
-        
-        case STATE_FOLLOWING:
-            vehicleState = followFunc();
-            break;
+    switch (vehicleState)
+    {
+      case STATE_PLANNING:
+        vehicleState = planFunc();
+        break;
 
-        case STATE_BRAKING:
-            vehicleState = brakeFunc();
-            break;
+      case STATE_FOLLOWING:
+        vehicleState = followFunc();
+        break;
 
-        case STATE_ARRIVED:
-            vehicleState = arrivedFunc();
-            break;
+      case STATE_BRAKING:
+        vehicleState = brakeFunc();
+        break;
 
-        case STATE_DISCONNECTED:
-            vehicleState = disconnectedFunc();
-            break;
+      case STATE_ARRIVED:
+        vehicleState = arrivedFunc();
+        break;
 
-        default:
-            break;
-        }
+      case STATE_DISCONNECTED:
+        vehicleState = disconnectedFunc();
+        break;
+
+      default:
+        break;
     }
+  }
 }
