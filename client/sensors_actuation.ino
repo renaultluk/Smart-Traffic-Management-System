@@ -109,15 +109,15 @@ bool linePosition(char direction, bool &split) {
     }
     Serial.println();
 
-    int tmpCount = 0;
-    for (int i = 1; i < 8; i++) {
-      tmpCount += avArr[i];
-      avArr[i-1] = avArr[i];
-     }
-     avArr[7] = error;
-     tmpCount += error;
+    // int tmpCount = 0;
+    // for (int i = 1; i < 8; i++) {
+    //   tmpCount += avArr[i];
+    //   avArr[i-1] = avArr[i];
+    //  }
+    //  avArr[7] = error;
+    //  tmpCount += error;
 
-     error = tmpCount/8.0;
+    //  error = tmpCount/8.0;
 //     error += 2;
      Serial.print("error: ");
      Serial.print(error);

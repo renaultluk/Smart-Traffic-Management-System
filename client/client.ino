@@ -4,7 +4,7 @@
 #include "credentials.h"
 #include "client.h"
 
-#define CONTROL_FREQ    45
+#define CONTROL_FREQ    20
 
 #define NODE_BOUNDS      10
 
