@@ -27,7 +27,7 @@ float I_error;
 float D_error;
 float integral = 0;
 
-float cruising_speed = 50;
+float cruising_speed = 55;
 int avArr[8];
 
 float distance;
