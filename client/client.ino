@@ -124,8 +124,8 @@ State followFunc() {
       Serial.println("Finished line reading");
       if (split) {
         Edge* tmpEdge = connectEdge(path[0], path[1]);
-//        releaseEdge(tmpEdge);
-//        publishWeightChanges(weightsJson);
+        releaseEdge(tmpEdge);
+        publishWeightChanges(weightsJson);
 
         Serial.println("split detected");
         dequeue(path, path_length);
