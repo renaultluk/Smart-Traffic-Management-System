@@ -28,7 +28,7 @@ Node* path[NUM_NODES];
 char direction_queue[NUM_NODES];
 int path_length = 0;
 int direction_length = 0;
-int target_index = 0;
+int target_index = 19;
 // Node* destinations[NUM_NODES];
 // int dest_length = 0;
 
@@ -92,12 +92,16 @@ void reset() {
 
 State planFunc() {
   Serial.println("Entering STATE_PLANNING");
+  Serial.print("Planning from node ");
+  Serial.print(start->index);
+  Serial.print("to node ");
+  Serial.println(target->index);
   if (!client.connected()) {
     prevState = STATE_PLANNING;
     return STATE_DISCONNECTED;
   }
-  planPath(&node_map[0], &node_map[17], path, direction_queue);
-//  publishWeightChanges(weightsJson);      // JSON pending
+  planPath(start, target, path, direction_queue);
+  publishWeightChanges(weightsJson);      // JSON pending
   return STATE_FOLLOWING;
 }
 

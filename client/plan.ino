@@ -66,7 +66,7 @@ int reconstructPath(Node* target, Node* path[]) {
     int i = 1;
     Node* current = target;
     while (current->prev != nullptr) {
-//        addToJSON(weightsJson, connectEdge(current, current->prev)->index, OCCUPIED_WEIGHT);      // JSON pending
+        addToJSON(weightsJson, connectEdge(current, current->prev)->index, OCCUPIED_WEIGHT);      // JSON pending
         tmpPath[i] = current->prev;
         current = current->prev;
         i++;

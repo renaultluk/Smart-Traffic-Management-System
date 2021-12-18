@@ -4,12 +4,13 @@
 #include "credentials.h"
 #include "graphStructs.h"
 
-const int capacity = JSON_ARRAY_SIZE(NUM_EDGES) + NUM_EDGES*JSON_OBJECT_SIZE(2);
+const int CAPACITY = JSON_ARRAY_SIZE(NUM_EDGES) + NUM_EDGES*JSON_OBJECT_SIZE(2);
+int remaining = CAPACITY;
 
 void createNewJSON() {
   Serial.print("createNewJSON \t capacity= ");
-  Serial.println(capacity);
-  DynamicJsonDocument doc(capacity);
+  Serial.println(CAPACITY);
+  DynamicJsonDocument doc(CAPACITY);
   weightsJson = doc.to<JsonArray>();
 }
 
@@ -17,7 +18,9 @@ void addToJSON(JsonArray& root, int key, int value) {
     Serial.print("addToJSON \t key: ");
     Serial.print(key);
     Serial.print("\t value: ");
-    Serial.println(value);
+    Serial.print(value);
+    Serial.print("\t remaining: ");
+    Serial.println(remaining - JSON_OBJECT_SIZE(2));
     JsonObject record = root.createNestedObject();
     record["key"] = key;
     record["value"] = value;
@@ -35,7 +38,7 @@ void publishWeightChanges(JsonArray& weightChanges) {
 }
 
 void parseWeightJson(String payload) {
-    StaticJsonDocument<capacity> doc;
+    StaticJsonDocument<CAPACITY> doc;
     DeserializationError error = deserializeJson(doc, payload);
 
     if (error) {
