@@ -18,10 +18,14 @@ void addToJSON(JsonArray& root, int key, int value) {
     Serial.print("addToJSON \t key: ");
     Serial.print(key);
     Serial.print("\t value: ");
-    Serial.print(value);
-    Serial.print("\t remaining: ");
-    Serial.println(remaining - JSON_OBJECT_SIZE(2));
+    Serial.println(value);
+    Serial.print("Edge from ");
+    Serial.print(edge_map[key].start->index);
+    Serial.print(" to ");
+    Serial.print(edge_map[key].end->index);
     JsonObject record = root.createNestedObject();
+    Serial.print("\t remaining: ");
+    Serial.println(remaining - sizeof(record));
     record["key"] = key;
     record["value"] = value;
 }

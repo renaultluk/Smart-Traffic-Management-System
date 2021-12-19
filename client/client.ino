@@ -22,13 +22,13 @@ typedef enum {
 
 State prevState = STATE_INIT;
 
-Node* start = &node_map[19];
+Node* start = &node_map[15];
 Node* target = start;
 Node* path[NUM_NODES];
 char direction_queue[NUM_NODES];
 int path_length = 0;
 int direction_length = 0;
-int target_index = 19;
+int target_index = 15;
 // Node* destinations[NUM_NODES];
 // int dest_length = 0;
 
@@ -94,7 +94,7 @@ State planFunc() {
   Serial.println("Entering STATE_PLANNING");
   Serial.print("Planning from node ");
   Serial.print(start->index);
-  Serial.print("to node ");
+  Serial.print(" to node ");
   Serial.println(target->index);
   if (!client.connected()) {
     prevState = STATE_PLANNING;
@@ -124,8 +124,8 @@ State followFunc() {
       Serial.println("Finished line reading");
       if (split) {
         Edge* tmpEdge = connectEdge(path[0], path[1]);
-        releaseEdge(tmpEdge);
-        publishWeightChanges(weightsJson);
+//        releaseEdge(tmpEdge);
+//        publishWeightChanges(weightsJson);
 
         Serial.println("split detected");
         dequeue(path, path_length);
@@ -161,6 +161,7 @@ State arrivedFunc() {
   }
   int new_target_index = target_index;
   while (new_target_index == target_index) {
+    Serial.println("Generating new destination");
     new_target_index = random(NUM_DEST);
   }
   target = destinations[new_target_index];
@@ -176,10 +177,10 @@ State disconnectedFunc() {
 void setup() {
   Serial.begin(115200);
   randomSeed(analogRead(0));
-//  while (!Serial);
-  initMap();
-  start = &node_map[19];
+  while (!Serial);
   createNewJSON();
+  initMap();
+//  start = &node_map[17];
   setup_wifi();
   client.setServer(mqttServer, 1883);
   client.setCallback(callback);

@@ -30,6 +30,8 @@ Node* outgoing(Node* node, Edge edge) {
 }
 
 void solve(Node* start) {
+    Serial.print("Start: ");
+    Serial.println(start->index);
     Node* queue[NUM_NODES] = {};
     int queue_size = 0;
     enqueue(queue, start, queue_size);
@@ -39,7 +41,11 @@ void solve(Node* start) {
     while (queue_size > 0) {
         Node* current = queue[0];
         queue[0]->visited = true;
-
+        Serial.print("Solving for node ");
+        Serial.print(current->index);
+        Serial.print("\t degree: ");
+        Serial.println(current->degree);
+        
         for (int i = 0; i < current->degree; i++) {
             Edge edge = edge_map[current->edges[i]];
             Node* nextNode = outgoing(current, edge);
@@ -61,6 +67,7 @@ void solve(Node* start) {
 }
 
 int reconstructPath(Node* target, Node* path[]) {
+    Serial.println("Entered reconstructPath");
     Node* tmpPath[NUM_NODES];
     tmpPath[0] = target;
     int i = 1;
@@ -129,6 +136,8 @@ void setDirectionQueue(char direction_queue[], Node* path[], Node* start, int pa
 }
 
 void planPath(Node* start, Node* target, Node* path[], char direction_queue[]) {
+    Serial.print("planFunc start: ");
+    Serial.println(start->index);
     solve(start);
     int path_length = reconstructPath(target, path);
     setDirectionQueue(direction_queue, path, start, path_length);

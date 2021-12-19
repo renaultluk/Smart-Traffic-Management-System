@@ -28,6 +28,7 @@ Edge newEdge(int index, Node* start, Node* end, int weight) {
 }
 
 Edge* connectEdge(Node* node1, Node* node2) {
+    Serial.println("Entered connectEdge");
     int map_length = sizeof(edge_map)/sizeof(*edge_map);
     for (int i = 0; i < map_length; i++) {
         if ((edge_map[i].start->index == node1->index && edge_map[i].end->index == node2->index) ||
@@ -40,6 +41,8 @@ Edge* connectEdge(Node* node1, Node* node2) {
 void initMap() {
     for (int i = 0; i < NUM_NODES; i++) {
         node_map[i] = newNode(i);
+//        Serial.print("Init node ");
+//        Serial.println(node_map[i].index);
     }
 
     for (int i = 0; i < NUM_EDGES; i++) {
@@ -49,6 +52,7 @@ void initMap() {
         edge_map[i].end->degree++;
     }
     destinations[0] = &node_map[0];
-    destinations[1] = &node_map[18];
-    destinations[2] = &node_map[19];
+    destinations[1] = &node_map[15];
+    destinations[2] = &node_map[16];
+    destinations[3] = &node_map[17];
 }
